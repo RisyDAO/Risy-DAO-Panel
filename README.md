@@ -119,7 +119,7 @@ We welcome contributions! Please follow these steps:
 
 ## Community & Support
 
-- Twitter: [@RisyDAO](https://twitter.com/RisyDAO)
+- X (Twitter): [@RisyDAO](https://x.com/RisyDAO)
 - Telegram: [RisyDAOCommunity](https://t.me/RisyDAOCommunity)
 - Discord: [Risy DAO Community](https://discord.gg/zuSBq2XBjc)
 - Medium: [risydao.medium.com](https://risydao.medium.com)

@@ -1,7 +1,7 @@
 # Risy DAO Management Panel
 
 <p align="center">
-  <img src="public/assets/risy-logo.png" alt="Risy DAO Logo" width="200"/>
+  <img src="https://raw.githubusercontent.com/RisyDAO/Risy-DAO/d01d4ab900d51a305e8de96ca937e0a5674f0c29/img/logo.png" alt="Risy DAO Logo" width="200"/>
 </p>
 
 <p align="center">

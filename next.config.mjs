@@ -8,10 +8,7 @@ const nextConfig = {
   webpack: (config) => {
     config.externals.push("pino-pretty", "lokijs", "encoding");
     return config;
-  },
-  // Update assetPrefix configuration
-  assetPrefix: process.env.NODE_ENV === 'production' ? '/' : '',
-  basePath: process.env.NODE_ENV === 'production' ? '' : '',
+  }
 };
 
 export default nextConfig;

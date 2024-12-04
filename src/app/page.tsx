@@ -2,26 +2,24 @@
 
 import Image from "next/image";
 import { ConnectButton } from "thirdweb/react";
-import thirdwebIcon from "../../public/thirdweb.svg";
 import { client } from "./client";
 
 export default function Home() {
   return (
-    <main className="p-4 pb-10 min-h-[100vh] flex items-center justify-center container max-w-screen-lg mx-auto">
-      <div className="py-20">
+    <main className="min-h-screen bg-[#111827] text-white">
+      <div className="container mx-auto px-4 py-8">
         <Header />
-
-        <div className="flex justify-center mb-20">
+        
+        <div className="flex justify-center mb-12">
           <ConnectButton
             client={client}
             appMetadata={{
-              name: "Example App",
-              url: "https://example.com",
+              name: "Risy DAO Panel"
             }}
           />
         </div>
 
-        <ThirdwebResources />
+        <TokenOperations />
       </div>
     </main>
   );
@@ -29,72 +27,78 @@ export default function Home() {
 
 function Header() {
   return (
-    <header className="flex flex-col items-center mb-20 md:mb-20">
-      <Image
-        src={thirdwebIcon}
-        alt=""
-        className="size-[150px] md:size-[150px]"
-        style={{
-          filter: "drop-shadow(0px 0px 24px #a726a9a8)",
-        }}
-      />
-
-      <h1 className="text-2xl md:text-6xl font-semibold md:font-bold tracking-tighter mb-6 text-zinc-100">
-        thirdweb SDK
-        <span className="text-zinc-300 inline-block mx-1"> + </span>
-        <span className="inline-block -skew-x-6 text-blue-500"> Next.js </span>
+    <header className="text-center mb-16">
+      <div className="mb-8">
+        <Image
+          src="./img/logo.png"
+          alt="Risy DAO"
+          width={200}
+          height={200}
+          className="mx-auto"
+        />
+      </div>
+      
+      <h1 className="text-4xl md:text-6xl font-bold mb-4 bg-gradient-to-r from-[#6366F1] via-[#3B82F6] to-[#2DD4BF] text-transparent bg-clip-text">
+        Risy DAO Token Management
       </h1>
-
-      <p className="text-zinc-300 text-base">
-        Read the{" "}
-        <code className="bg-zinc-800 text-zinc-300 px-2 rounded py-1 text-sm mx-1">
-          README.md
-        </code>{" "}
-        file to get started.
+      
+      <p className="text-[#9CA3AF] text-lg max-w-2xl mx-auto">
+        Securely manage your RISY tokens with automatic limit calculations and transfer restrictions
       </p>
     </header>
   );
 }
 
-function ThirdwebResources() {
+function TokenOperations() {
   return (
-    <div className="grid gap-4 lg:grid-cols-3 justify-center">
-      <ArticleCard
-        title="thirdweb SDK Docs"
-        href="https://portal.thirdweb.com/typescript/v5"
-        description="thirdweb TypeScript SDK documentation"
+    <div className="max-w-2xl mx-auto grid gap-6">
+      <OperationCard
+        title="Transfer Tokens"
+        description="Send RISY tokens to another address (Daily limit: 10% of balance)"
+        href="/transfer"
       />
-
-      <ArticleCard
-        title="Components and Hooks"
-        href="https://portal.thirdweb.com/typescript/v5/react"
-        description="Learn about the thirdweb React components and hooks in thirdweb SDK"
+      
+      <OperationCard
+        title="Token Balance"
+        description="View your current balance and transfer limits"
+        href="/balance"
       />
-
-      <ArticleCard
-        title="thirdweb Dashboard"
-        href="https://thirdweb.com/dashboard"
-        description="Deploy, configure, and manage your smart contracts from the dashboard."
-      />
+      
+      <div className="p-4 rounded-lg border border-[#374151] bg-opacity-50">
+        <h3 className="text-sm font-semibold text-[#9CA3AF] mb-2">Quick Stats</h3>
+        <ul className="space-y-2 text-sm">
+          <li className="flex justify-between">
+            <span>Daily Transfer Limit:</span>
+            <span className="text-[#34D399]">10% of balance</span>
+          </li>
+          <li className="flex justify-between">
+            <span>ICO Maximum Balance:</span>
+            <span className="text-[#34D399]">0.75% (~7.5B RISY)</span>
+          </li>
+          <li className="flex justify-between">
+            <span>DAO Fee:</span>
+            <span className="text-[#34D399]">0.1% per transfer</span>
+          </li>
+        </ul>
+      </div>
     </div>
   );
 }
 
-function ArticleCard(props: {
+function OperationCard({ title, description, href }: {
   title: string;
-  href: string;
   description: string;
+  href: string;
 }) {
   return (
     <a
-      href={props.href + "?utm_source=next-template"}
-      target="_blank"
-      className="flex flex-col border border-zinc-800 p-4 rounded-lg hover:bg-zinc-900 transition-colors hover:border-zinc-700"
+      href={href}
+      className="block p-6 rounded-lg border border-[#374151] bg-opacity-50 hover:bg-[#1F2937] transition-all duration-200 hover:shadow-lg hover:shadow-[#4F46E5]/10"
     >
-      <article>
-        <h2 className="text-lg font-semibold mb-2">{props.title}</h2>
-        <p className="text-sm text-zinc-400">{props.description}</p>
-      </article>
+      <div className="space-y-3">
+        <h2 className="text-xl font-semibold text-white">{title}</h2>
+        <p className="text-[#9CA3AF] text-sm">{description}</p>
+      </div>
     </a>
   );
 }

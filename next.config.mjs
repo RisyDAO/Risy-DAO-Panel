@@ -9,8 +9,9 @@ const nextConfig = {
     config.externals.push("pino-pretty", "lokijs", "encoding");
     return config;
   },
-  basePath: '',
-  assetPrefix: './',
+  // Update assetPrefix configuration
+  assetPrefix: process.env.NODE_ENV === 'production' ? '/' : '',
+  basePath: process.env.NODE_ENV === 'production' ? '' : '',
 };
 
 export default nextConfig;

@@ -5,7 +5,9 @@ import { ThirdwebProvider } from "thirdweb/react";
 
 const inter = Inter({ 
   subsets: ["latin"],
-  display: 'swap'
+  display: 'swap',
+  adjustFontFallback: false,
+  preload: true,
 });
 
 export const metadata: Metadata = {
@@ -22,6 +24,8 @@ export default function RootLayout({
     <html lang="en">
       <head>
         <link rel="icon" href="./favicon.ico" />
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="" />
       </head>
       <body className={inter.className}>
         <ThirdwebProvider>{children}</ThirdwebProvider>

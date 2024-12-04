@@ -49,31 +49,44 @@ Risy DAO Management Panel is a decentralized application (dApp) built on the Pol
 ### Installation
 
 1. Clone the repository:
-
+```bash
 git clone https://github.com/RisyDAO/Risy-DAO-Panel.git
 cd Risy-DAO-Panel
+```
 
 2. Install dependencies:
-
+```bash
 npm install
 # or
 yarn install
+```
 
 3. Create environment file:
-
+```bash
 cp .env.example .env
+```
 
 4. Configure your environment variables:
-
-REACT_APP_POLYGON_RPC_URL=your_polygon_rpc_url
-REACT_APP_RISY_CONTRACT=0xca154cF88F6ffBC23E16B5D08a9Bf4851FB97199
-REACT_APP_DAO_ADDRESS=0xD74E510a6472B20910ABCF8a3945E445b16aE11A
+```bash
+NEXT_PUBLIC_CLIENT_ID=your_thirdweb_client_id
+NEXT_PUBLIC_POLYGON_RPC_URL=your_polygon_rpc_url
+NEXT_PUBLIC_RISY_CONTRACT=0xca154cF88F6ffBC23E16B5D08a9Bf4851FB97199
+NEXT_PUBLIC_DAO_ADDRESS=0xD74E510a6472B20910ABCF8a3945E445b16aE11A
+```
 
 5. Start the development server:
-
-npm start
+```bash
+npm run dev
 # or
-yarn start
+yarn dev
+```
+
+6. Create a production build:
+```bash
+npm run build
+# or
+yarn build
+```
 
 ## Token Specifications
 

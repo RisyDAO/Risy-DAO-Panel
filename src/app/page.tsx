@@ -14,7 +14,10 @@ export default function Home() {
           <ConnectButton
             client={client}
             appMetadata={{
-              name: "Risy DAO Panel"
+              name: "Risy DAO Panel",
+              description: "Risy DAO Management Panel",
+              logoUrl: "./img/logo.png",
+              url: typeof window !== "undefined" ? window.location.origin : "",
             }}
           />
         </div>

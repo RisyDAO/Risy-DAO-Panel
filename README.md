@@ -108,6 +108,8 @@ We welcome contributions! Please follow these steps:
 4. Push to the branch (git push origin feature/AmazingFeature)
 5. Open a Pull Request
 
+For UI contributions, please refer to our [Theme Guide](./Risy%20DAO%20Theme%20Guide.md) to maintain consistency.
+
 ## Security Features
 
 - Automatic transfer limit calculations

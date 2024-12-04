@@ -3,12 +3,14 @@ import { Inter } from "next/font/google";
 import "./globals.css";
 import { ThirdwebProvider } from "thirdweb/react";
 
-const inter = Inter({ subsets: ["latin"] });
+const inter = Inter({ 
+  subsets: ["latin"],
+  display: 'swap'
+});
 
 export const metadata: Metadata = {
-  title: "thirdweb SDK + Next starter",
-  description:
-    "Starter template for using thirdweb SDK with Next.js App router",
+  title: "Risy DAO Panel",
+  description: "Risy DAO Management Panel",
 };
 
 export default function RootLayout({
@@ -18,6 +20,9 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
+      <head>
+        <link rel="icon" href="./favicon.ico" />
+      </head>
       <body className={inter.className}>
         <ThirdwebProvider>{children}</ThirdwebProvider>
       </body>

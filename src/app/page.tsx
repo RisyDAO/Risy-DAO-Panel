@@ -3,14 +3,26 @@
 import Image from "next/image";
 import { ConnectButton } from "thirdweb/react";
 import { client } from "./client";
+import { useState } from "react";
 
 export default function Home() {
   return (
     <main className="min-h-screen bg-[#111827] text-white">
-      <div className="container mx-auto px-4 py-8">
-        <Header />
-        
-        <div className="flex justify-center mb-12">
+      <nav className="border-b border-[#374151] bg-[#1F2937]">
+        <div className="container mx-auto px-4 py-3 flex justify-between items-center">
+          <div className="flex items-center space-x-6">
+            <Image
+              src="./img/logo.png"
+              alt="Risy DAO"
+              width={40}
+              height={40}
+              className="rounded-full"
+            />
+            <div className="hidden md:flex space-x-4">
+              <NavLink href="#dashboard" active>Dashboard</NavLink>
+            </div>
+          </div>
+          
           <ConnectButton
             client={client}
             appMetadata={{
@@ -21,87 +33,106 @@ export default function Home() {
             }}
           />
         </div>
+      </nav>
 
-        <TokenOperations />
+      <div className="container mx-auto px-4 py-8">
+        <DashboardHeader />
+        <DashboardGrid />
       </div>
     </main>
   );
 }
 
-function Header() {
+function NavLink({ href, children, active = false }: { 
+  href: string; 
+  children: React.ReactNode;
+  active?: boolean;
+}) {
   return (
-    <header className="text-center mb-16">
-      <div className="mb-8">
-        <Image
-          src="./img/logo.png"
-          alt="Risy DAO"
-          width={200}
-          height={200}
-          className="mx-auto"
-        />
-      </div>
-      
-      <h1 className="text-4xl md:text-6xl font-bold mb-4 bg-gradient-to-r from-[#6366F1] via-[#3B82F6] to-[#2DD4BF] text-transparent bg-clip-text">
-        Risy DAO Token Management
-      </h1>
-      
-      <p className="text-[#9CA3AF] text-lg max-w-2xl mx-auto">
-        Securely manage your RISY tokens with automatic limit calculations and transfer restrictions
-      </p>
-    </header>
+    <a
+      href={href}
+      className={`text-sm font-medium ${
+        active 
+          ? "text-white" 
+          : "text-[#9CA3AF] hover:text-white transition-colors"
+      }`}
+    >
+      {children}
+    </a>
   );
 }
 
-function TokenOperations() {
+function DashboardHeader() {
   return (
-    <div className="max-w-2xl mx-auto grid gap-6">
-      <OperationCard
-        title="Transfer Tokens"
-        description="Send RISY tokens to another address (Daily limit: 10% of balance)"
-        href="/transfer"
-      />
-      
-      <OperationCard
-        title="Token Balance"
-        description="View your current balance and transfer limits"
-        href="/balance"
-      />
-      
-      <div className="p-4 rounded-lg border border-[#374151] bg-opacity-50">
-        <h3 className="text-sm font-semibold text-[#9CA3AF] mb-2">Quick Stats</h3>
-        <ul className="space-y-2 text-sm">
-          <li className="flex justify-between">
-            <span>Daily Transfer Limit:</span>
-            <span className="text-[#34D399]">10% of balance</span>
-          </li>
-          <li className="flex justify-between">
-            <span>ICO Maximum Balance:</span>
-            <span className="text-[#34D399]">0.75% (~7.5B RISY)</span>
-          </li>
-          <li className="flex justify-between">
-            <span>DAO Fee:</span>
-            <span className="text-[#34D399]">0.1% per transfer</span>
-          </li>
-        </ul>
+    <div className="mb-8">
+      <h1 className="text-2xl font-bold mb-2">Dashboard</h1>
+      <p className="text-[#9CA3AF]">Manage your RISY tokens and view analytics</p>
+    </div>
+  );
+}
+
+function DashboardGrid() {
+  return (
+    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      <TokenBalance />
+      <TransferPanel />
+    </div>
+  );
+}
+
+function TokenBalance() {
+  return (
+    <div className="col-span-1 p-6 rounded-lg border border-[#374151] bg-[#1F2937] bg-opacity-50">
+      <h2 className="text-xl font-semibold mb-4">Token Balance</h2>
+      <div className="space-y-4">
+        <div className="flex justify-between items-center">
+          <span className="text-[#9CA3AF]">Available Balance</span>
+          <span className="text-2xl font-bold">0 RISY</span>
+        </div>
+        <div className="flex justify-between items-center">
+          <span className="text-[#9CA3AF]">Daily Transfer Limit</span>
+          <span className="text-[#34D399]">0 RISY</span>
+        </div>
       </div>
     </div>
   );
 }
 
-function OperationCard({ title, description, href }: {
-  title: string;
-  description: string;
-  href: string;
-}) {
+function TransferPanel() {
+  const [amount, setAmount] = useState("");
+  const [recipient, setRecipient] = useState("");
+
   return (
-    <a
-      href={href}
-      className="block p-6 rounded-lg border border-[#374151] bg-opacity-50 hover:bg-[#1F2937] transition-all duration-200 hover:shadow-lg hover:shadow-[#4F46E5]/10"
-    >
-      <div className="space-y-3">
-        <h2 className="text-xl font-semibold text-white">{title}</h2>
-        <p className="text-[#9CA3AF] text-sm">{description}</p>
-      </div>
-    </a>
+    <div className="col-span-1 p-6 rounded-lg border border-[#374151] bg-[#1F2937] bg-opacity-50">
+      <h2 className="text-xl font-semibold mb-4">Transfer Tokens</h2>
+      <form className="space-y-4">
+        <div>
+          <label className="block text-sm text-[#9CA3AF] mb-2">Recipient Address</label>
+          <input
+            type="text"
+            value={recipient}
+            onChange={(e) => setRecipient(e.target.value)}
+            className="w-full bg-[#111827] border border-[#374151] rounded-md px-3 py-2 text-white"
+            placeholder="0x..."
+          />
+        </div>
+        <div>
+          <label className="block text-sm text-[#9CA3AF] mb-2">Amount</label>
+          <input
+            type="text"
+            value={amount}
+            onChange={(e) => setAmount(e.target.value)}
+            className="w-full bg-[#111827] border border-[#374151] rounded-md px-3 py-2 text-white"
+            placeholder="0.0"
+          />
+        </div>
+        <button
+          type="submit"
+          className="w-full bg-gradient-to-r from-[#6366F1] to-[#3B82F6] text-white py-2 rounded-md hover:opacity-90 transition-opacity"
+        >
+          Transfer
+        </button>
+      </form>
+    </div>
   );
 }

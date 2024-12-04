@@ -11,6 +11,7 @@
     "static": "npm run build && serve out"
   },
   "dependencies": {
+    "ethers": "^6.13.4",
     "next": "14.1.0",
     "react": "^18.3",
     "react-dom": "^18.3",

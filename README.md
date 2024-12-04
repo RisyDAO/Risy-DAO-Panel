@@ -63,7 +63,7 @@ yarn install
 
 3. Create environment file:
 ```bash
-cp .env.example .env
+touch .env
 ```
 
 4. Configure your environment variables:

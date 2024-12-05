@@ -154,6 +154,7 @@ export default function Home() {
               colors: {
                 // Core backgrounds
                 modalBg: "#111827",
+                modalOverlayBg: "rgba(17, 24, 39, 0.8)",
                 borderColor: "#374151",
                 separatorLine: "#374151",
                 tertiaryBg: "#1F2937",
@@ -163,16 +164,16 @@ export default function Home() {
                 primaryText: "#FFFFFF",
                 secondaryText: "#9CA3AF",
                 accentText: "#818CF8",
-                selectedTextColor: "#111827",
-                selectedTextBg: "#F3F4F6",
+                selectedTextColor: "#FFFFFF",
+                selectedTextBg: "#374151",
 
                 // Button styles with gradients
-                primaryButtonBg: "linear-gradient(135deg, #6366F1, #3B82F6)",
+                primaryButtonBg: "linear-gradient(135deg, #6366F1, #3B82F6, #2DD4BF)",
                 primaryButtonText: "#FFFFFF",
                 secondaryButtonBg: "#1F2937",
                 secondaryButtonText: "#FFFFFF",
                 secondaryButtonHoverBg: "linear-gradient(135deg, #374151, #1F2937)",
-                accentButtonBg: "linear-gradient(135deg, #6366F1, #3B82F6, #2DD4BF)",
+                accentButtonBg: "linear-gradient(135deg, #3730A3, #4F46E5, #2BB3A0)",
                 accentButtonText: "#FFFFFF",
 
                 // Connected state
@@ -181,8 +182,8 @@ export default function Home() {
 
                 // Icons and interactions
                 secondaryIconColor: "#9CA3AF",
-                secondaryIconHoverColor: "#A5B4FC", // Light Indigo from theme
-                secondaryIconHoverBg: "rgba(31, 41, 55, 0.5)", // Semi-transparent overlay
+                secondaryIconHoverColor: "#A5B4FC",
+                secondaryIconHoverBg: "rgba(31, 41, 55, 0.5)",
 
                 // Status colors
                 danger: "#F87171",
@@ -194,6 +195,7 @@ export default function Home() {
                 inputAutofillBg: "#111827",
                 scrollbarBg: "#1F2937",
               },
+              fontFamily: "'Poppins Bold', sans-serif"
             })}
             connectModal={{
               size: "compact",

@@ -5,6 +5,37 @@ import { ConnectButton, darkTheme } from "thirdweb/react";
 import { client } from "./client";
 import { useState } from "react";
 import { wallets } from "./wallets";
+import {
+  ethereum,
+  polygon,
+  bsc,
+  arbitrum,
+  optimism,
+  base,
+  avalanche,
+  fantom,
+  cronos,
+  
+  polygonZkEvm,
+  arbitrumNova,
+  linea,
+  scroll,
+  mantaPacific,
+  moonbeam,
+  gnosis,
+  celo,
+  
+  blast,
+  xai,
+  degen,
+  loot,
+  
+  palm,
+  rari,
+  godWoken,
+  astriaEvmDusknet,
+} from "thirdweb/chains";
+import { CONTRACTS, RISY_TOKEN_CONFIG } from "./constants";
 
 export default function Home() {
   return (
@@ -27,6 +58,106 @@ export default function Home() {
           <ConnectButton
             client={client}
             wallets={wallets}
+            chains={[
+              polygon,
+              ethereum,
+              bsc,
+              arbitrum,
+              optimism,
+              base,
+              avalanche,
+              fantom,
+              cronos,
+              
+              polygonZkEvm,
+              arbitrumNova,
+              linea,
+              scroll,
+              mantaPacific,
+              moonbeam,
+              gnosis,
+              celo,
+              
+              blast,
+              xai,
+              degen,
+              loot,
+              
+              palm,
+              rari,
+              godWoken,
+              astriaEvmDusknet,
+            ]}
+            supportedTokens={{
+              [polygon.id]: [
+                {
+                  address: CONTRACTS.RISY_TOKEN,
+                  name: RISY_TOKEN_CONFIG.name,
+                  symbol: RISY_TOKEN_CONFIG.symbol,
+                  icon: RISY_TOKEN_CONFIG.icon,
+                },
+                {
+                  address: "0x0d500B1d8E8eF31E21C99d1Db9A6444d3ADf1270",
+                  name: "Wrapped Matic",
+                  symbol: "WMATIC",
+                  icon: "https://assets.coingecko.com/coins/images/4713/small/matic___polygon.jpg",
+                },
+                {
+                  address: "0x3c499c542cEF5E3811e1192ce70d8cC03d5c3359",
+                  name: "USD Coin",
+                  symbol: "USDC",
+                  icon: "https://assets.coingecko.com/coins/images/6319/small/USD_Coin_icon.png",
+                },
+                {
+                  address: "0x2791bca1f2de4661ed88a30c99a7a9449aa84174",
+                  name: "USD Coin (PoS)",
+                  symbol: "USDC.e",
+                  icon: "https://assets.coingecko.com/coins/images/6319/small/USD_Coin_icon.png",
+                },
+                {
+                  address: "0x553d3D295e0f695B9228246232eDF400ed3560B5",
+                  name: "PAX Gold",
+                  symbol: "PAXG",
+                  icon: "https://assets.coingecko.com/coins/images/9519/small/paxg.PNG",
+                },
+                {
+                  address: "0xc2132D05D31c914a87C6611C10748AEb04B58e8F",
+                  name: "Tether USD",
+                  symbol: "USDT",
+                  icon: "https://assets.coingecko.com/coins/images/325/small/Tether.png",
+                },
+                {
+                  address: "0x7ceB23fD6bC0adD59E62ac25578270cFf1b9f619",
+                  name: "Wrapped Ether",
+                  symbol: "WETH",
+                  icon: "https://assets.coingecko.com/coins/images/2518/small/weth.png",
+                },
+                {
+                  address: "0x1BFD67037B42Cf73acF2047067bd4F2C47D9BfD6",
+                  name: "Wrapped BTC",
+                  symbol: "WBTC",
+                  icon: "https://assets.coingecko.com/coins/images/7598/small/wrapped_bitcoin_wbtc.png",
+                },
+                {
+                  address: "0x8f3Cf7ad23Cd3CaDbD9735AFf958023239c6A063",
+                  name: "Dai Stablecoin",
+                  symbol: "DAI",
+                  icon: "https://assets.coingecko.com/coins/images/9956/small/Badge_Dai.png",
+                },
+                {
+                  address: "0xffa4d863c96e743a2e1513824ea006b8d0353c57",
+                  name: "Decentralized USD",
+                  symbol: "USDD",
+                  icon: "https://assets.coingecko.com/coins/images/25380/small/USDD.jpg",
+                },
+                {
+                  address: "0x45c32fa6df82ead1e2ef74d17b76547eddfaff89",
+                  name: "Frax",
+                  symbol: "FRAX",
+                  icon: "https://assets.coingecko.com/coins/images/13422/small/frax_logo.png",
+                }
+              ],
+            }}
             theme={darkTheme({
               colors: {
                 // Core backgrounds

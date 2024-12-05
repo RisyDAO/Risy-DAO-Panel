@@ -98,8 +98,8 @@ export default function Home() {
                 },
                 {
                   address: "0x0d500B1d8E8eF31E21C99d1Db9A6444d3ADf1270",
-                  name: "Wrapped Matic",
-                  symbol: "WMATIC",
+                  name: "Wrapped Pol",
+                  symbol: "WPOL",
                   icon: "https://assets.coingecko.com/coins/images/4713/small/matic___polygon.jpg",
                 },
                 {

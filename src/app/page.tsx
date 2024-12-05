@@ -4,35 +4,7 @@ import Image from "next/image";
 import { ConnectButton, darkTheme } from "thirdweb/react";
 import { client } from "./client";
 import { useState } from "react";
-import {
-  inAppWallet,
-  createWallet
-} from "thirdweb/wallets";
-
-// Add wallets configuration
-const wallets = [
-  inAppWallet({
-    auth: {
-      options: [
-        "google",
-        "passkey",
-        "phone",
-        "email",
-        "apple",
-        "github",
-      ],
-    },
-  }),
-  createWallet("io.metamask"),
-  createWallet("com.brave.wallet"),
-  createWallet("com.okex.wallet"),
-  createWallet("com.binance"),
-  createWallet("com.trustwallet.app"),
-  createWallet("io.1inch.wallet"),
-  createWallet("com.coinbase.wallet"),
-  createWallet("com.crypto.wallet"),
-  
-];
+import { wallets } from "./wallets";
 
 export default function Home() {
   return (
@@ -147,7 +119,7 @@ function DashboardHeader() {
   return (
     <div className="mb-8">
       <h1 className="text-2xl font-bold mb-2">Dashboard</h1>
-      <p className="text-[#9CA3AF]">Manage your RISY tokens and view analytics</p>
+      <p className="text-[#9CA3AF]">Manage your wallet and Risy DAO (RISY) tokens. Track your daily transfer limit and remaining amount to the ICO maximum balance.</p>
     </div>
   );
 }

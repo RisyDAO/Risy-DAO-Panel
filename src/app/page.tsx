@@ -57,32 +57,45 @@ export default function Home() {
             wallets={wallets}
             theme={darkTheme({
               colors: {
-                modalBg: "#111827", // From theme guide background
-                borderColor: "#374151", // From theme guide borders
-                accentText: "#818CF8", // From theme guide accent color
+                // Core backgrounds
+                modalBg: "#111827",
+                borderColor: "#374151",
                 separatorLine: "#374151",
-                tertiaryBg: "#1F2937", // From existing UI
+                tertiaryBg: "#1F2937",
                 skeletonBg: "#1F2937",
-                primaryText: "#FFFFFF", // From theme guide text
-                secondaryText: "#9CA3AF", // From theme guide secondary text
+
+                // Text colors
+                primaryText: "#FFFFFF",
+                secondaryText: "#9CA3AF",
+                accentText: "#818CF8",
                 selectedTextColor: "#111827",
                 selectedTextBg: "#F3F4F6",
-                primaryButtonBg: "#4F46E5", // From theme guide primary button
+
+                // Button styles with gradients
+                primaryButtonBg: "linear-gradient(135deg, #6366F1, #3B82F6)",
                 primaryButtonText: "#FFFFFF",
                 secondaryButtonBg: "#1F2937",
                 secondaryButtonText: "#FFFFFF",
-                secondaryButtonHoverBg: "#374151",
-                accentButtonBg: "#6366F1", // From theme guide gradient start
+                secondaryButtonHoverBg: "linear-gradient(135deg, #374151, #1F2937)",
+                accentButtonBg: "linear-gradient(135deg, #6366F1, #3B82F6, #2DD4BF)",
                 accentButtonText: "#FFFFFF",
-                connectedButtonBg: "#111827",
-                connectedButtonBgHover: "#1F2937",
+
+                // Connected state
+                connectedButtonBg: "#1F2937",
+                connectedButtonBgHover: "linear-gradient(135deg, #374151, #1F2937)",
+
+                // Icons and interactions
                 secondaryIconColor: "#9CA3AF",
-                secondaryIconHoverColor: "#FFFFFF",
-                secondaryIconHoverBg: "#1F2937",
-                danger: "#F87171", // From theme guide status colors
-                success: "#34D399", // From theme guide status colors
-                tooltipBg: "#F3F4F6",
-                tooltipText: "#111827",
+                secondaryIconHoverColor: "#A5B4FC", // Light Indigo from theme
+                secondaryIconHoverBg: "rgba(31, 41, 55, 0.5)", // Semi-transparent overlay
+
+                // Status colors
+                danger: "#F87171",
+                success: "#34D399",
+
+                // UI elements
+                tooltipBg: "#1F2937",
+                tooltipText: "#FFFFFF",
                 inputAutofillBg: "#111827",
                 scrollbarBg: "#1F2937",
               },

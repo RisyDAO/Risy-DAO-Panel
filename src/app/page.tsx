@@ -143,18 +143,6 @@ export default function Home() {
                   name: "Dai Stablecoin",
                   symbol: "DAI",
                   icon: "https://assets.coingecko.com/coins/images/9956/small/Badge_Dai.png",
-                },
-                {
-                  address: "0xffa4d863c96e743a2e1513824ea006b8d0353c57",
-                  name: "Decentralized USD",
-                  symbol: "USDD",
-                  icon: "https://assets.coingecko.com/coins/images/25380/small/USDD.jpg",
-                },
-                {
-                  address: "0x45c32fa6df82ead1e2ef74d17b76547eddfaff89",
-                  name: "Frax",
-                  symbol: "FRAX",
-                  icon: "https://assets.coingecko.com/coins/images/13422/small/frax_logo.png",
                 }
               ],
             }}

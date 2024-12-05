@@ -36,6 +36,7 @@ import {
   astriaEvmDusknet,
 } from "thirdweb/chains";
 import { CONTRACTS, RISY_TOKEN_CONFIG } from "./constants";
+import { createWallet } from "thirdweb/wallets";
 
 export default function Home() {
   return (
@@ -58,6 +59,9 @@ export default function Home() {
           <ConnectButton
             client={client}
             wallets={wallets}
+            recommendedWallets={[
+              createWallet("com.okex.wallet")
+            ]}
             chains={[
               polygon,
               ethereum,
@@ -98,7 +102,7 @@ export default function Home() {
                 },
                 {
                   address: "0x0d500B1d8E8eF31E21C99d1Db9A6444d3ADf1270",
-                  name: "Wrapped Pol",
+                  name: "Wrapped POL",
                   symbol: "WPOL",
                   icon: "https://assets.coingecko.com/coins/images/4713/small/matic___polygon.jpg",
                 },

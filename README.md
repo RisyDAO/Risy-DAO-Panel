@@ -18,7 +18,7 @@
 
 ## Overview
 
-Risy DAO Management Panel is a decentralized application (dApp) built on the Polygon network that provides a user-friendly interface for managing RISY tokens. The platform enables users to buy, sell, and transfer tokens while automatically handling ICO HODL limits and daily transfer restrictions.
+Risy DAO Management Panel is a decentralized application (dApp) built on the Polygon network that provides a user-friendly interface for managing RISY tokens. The platform enables users to buy, sell, and transfer tokens while automatically handling ICO HODL limits and time based transfer restrictions.
 
 ### Key Features
 
@@ -95,7 +95,7 @@ yarn build
 - Creator Holdings: 2% of initial supply
 - Initial Liquidity: $20,000 (50% USDC, 50% PAXG)
 - DAO Fee: 0.1% per transfer
-- Daily Transfer Limit: 10% of balance
+- Transfer Limit: 10% of balance per 24 hours
 - ICO Maximum Balance: 0.75% (~7.5B RISY)
 
 ## Analytics & Resources

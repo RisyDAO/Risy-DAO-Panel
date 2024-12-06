@@ -38,6 +38,7 @@ import {
 import { CONTRACTS, RISY_TOKEN_CONFIG } from "./constants";
 import { createWallet } from "thirdweb/wallets";
 import { useRisyToken } from "./hooks/useRisyToken";
+import { useRisyTransfer } from "./hooks/useRisyTransfer";
 
 export default function Home() {
   return (
@@ -286,14 +287,23 @@ function TokenBalance() {
         <h2 className="text-xl font-semibold mb-6 bg-gradient-to-r from-[#6366F1] to-[#2DD4BF] bg-clip-text text-transparent">
           Token Balance
         </h2>
-        <div className="flex items-center justify-center h-32 text-[#9CA3AF] text-sm">
-          <div className="text-center space-y-3">
-            <div className="p-3 rounded-full bg-[#374151] bg-opacity-50 mx-auto w-fit">
-              <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+        <div className="flex items-center justify-center min-h-[24rem]">
+          <div className="text-center space-y-4">
+            <div className="p-4 rounded-full bg-[#374151] bg-opacity-50 mx-auto w-fit">
+              <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path 
+                  strokeLinecap="round" 
+                  strokeLinejoin="round" 
+                  strokeWidth={1.5} 
+                  d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" 
+                  className="text-[#9CA3AF]"
+                />
               </svg>
             </div>
-            <p>Connect your wallet to view balance</p>
+            <div className="space-y-2">
+              <p className="text-[#9CA3AF] font-medium">Connect your wallet</p>
+              <p className="text-sm text-[#6B7280]">to view your balance and transfer tokens</p>
+            </div>
           </div>
         </div>
       </div>
@@ -399,15 +409,120 @@ function TokenBalance() {
 }
 
 function TransferPanel() {
-  const [amount, setAmount] = useState("");
-  const [recipient, setRecipient] = useState("");
-  const [isSubmitting, setIsSubmitting] = useState(false);
+  const { balance, timedTransferLimit, walletAddress } = useRisyToken();
+  const {
+    recipient,
+    setRecipient,
+    amount,
+    setAmount,
+    error,
+    isSubmitting,
+    handleTransfer,
+    recipientBalance,
+    recipientRemainingHodl,
+    isValidAddress,
+  } = useRisyTransfer(balance, timedTransferLimit);
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setIsSubmitting(true);
-    // TODO: Implement transfer logic
-    setTimeout(() => setIsSubmitting(false), 1000);
+  // Determine if we should show wallet connection error
+  const showWalletError = !walletAddress && (recipient || amount);
+
+  // Split error messages by type
+  const getErrorType = () => {
+    if (!error) return null;
+    if (error.includes("recipient") || error.includes("address")) return "recipient";
+    if (error.includes("amount") || error.includes("balance") || error.includes("limit")) return "amount";
+    return "general";
+  };
+
+  const errorType = getErrorType();
+
+  // Button states and content
+  const getButtonContent = () => {
+    if (!walletAddress) {
+      return (
+        <>
+          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} 
+              d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" 
+            />
+          </svg>
+          <span>Connect Wallet</span>
+        </>
+      );
+    }
+
+    if (isSubmitting) {
+      return (
+        <>
+          <svg className="animate-spin h-5 w-5" viewBox="0 0 24 24">
+            <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none" />
+            <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
+          </svg>
+          <span>Processing Transaction...</span>
+        </>
+      );
+    }
+
+    if (!recipient) {
+      return (
+        <>
+          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} 
+              d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" 
+            />
+          </svg>
+          <span>Enter Recipient</span>
+        </>
+      );
+    }
+
+    if (!isValidAddress) {
+      return (
+        <>
+          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} 
+              d="M12 9v2m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" 
+            />
+          </svg>
+          <span>Invalid Address</span>
+        </>
+      );
+    }
+
+    if (!amount) {
+      return (
+        <>
+          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} 
+              d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" 
+            />
+          </svg>
+          <span>Enter Amount</span>
+        </>
+      );
+    }
+
+    if (error) {
+      return (
+        <>
+          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} 
+              d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" 
+            />
+          </svg>
+          <span>Cannot Transfer</span>
+        </>
+      );
+    }
+
+    return (
+      <>
+        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
+        </svg>
+        <span>Transfer {amount} RISY</span>
+      </>
+    );
   };
 
   return (
@@ -415,7 +530,7 @@ function TransferPanel() {
       <h2 className="text-xl font-semibold mb-6 bg-gradient-to-r from-[#6366F1] to-[#2DD4BF] bg-clip-text text-transparent">
         Transfer Tokens
       </h2>
-      <form onSubmit={handleSubmit} className="space-y-6">
+      <form onSubmit={(e) => { e.preventDefault(); handleTransfer(); }} className="space-y-6">
         <div className="space-y-4">
           {/* Recipient Input */}
           <div className="p-4 rounded-lg bg-[#111827] bg-opacity-50">
@@ -427,7 +542,11 @@ function TransferPanel() {
                 type="text"
                 value={recipient}
                 onChange={(e) => setRecipient(e.target.value)}
-                className="w-full bg-[#1F2937] border border-[#374151] rounded-md px-4 py-2.5 text-white placeholder-[#4B5563] focus:ring-2 focus:ring-[#6366F1] focus:border-transparent transition-all duration-200"
+                className={`w-full bg-[#1F2937] border rounded-md px-4 py-2.5 text-white placeholder-[#4B5563] transition-all duration-200
+                  ${showWalletError || errorType === 'recipient'
+                    ? 'border-red-500 focus:ring-red-500' 
+                    : 'border-[#374151] focus:ring-[#6366F1]'} 
+                  focus:border-transparent focus:ring-2`}
                 placeholder="0x..."
               />
               <div className="absolute inset-y-0 right-0 flex items-center pr-3">
@@ -442,6 +561,21 @@ function TransferPanel() {
                 </button>
               </div>
             </div>
+            {recipient && walletAddress && (
+              <div className="mt-2 text-xs text-[#9CA3AF] space-y-1">
+                <div className="flex justify-between">
+                  <span>Recipient Balance:</span>
+                  <span>{Number(recipientBalance).toFixed(2)} RISY</span>
+                </div>
+                <div className="flex justify-between">
+                  <span>Recipient HODL Limit Available:</span>
+                  <span>{Number(recipientRemainingHodl).toFixed(2)} RISY</span>
+                </div>
+              </div>
+            )}
+            {errorType === 'recipient' && (
+              <p className="mt-2 text-xs text-red-500">{error}</p>
+            )}
           </div>
 
           {/* Amount Input */}
@@ -454,44 +588,55 @@ function TransferPanel() {
                 type="text"
                 value={amount}
                 onChange={(e) => setAmount(e.target.value)}
-                className="w-full bg-[#1F2937] border border-[#374151] rounded-md px-4 py-2.5 text-white placeholder-[#4B5563] focus:ring-2 focus:ring-[#6366F1] focus:border-transparent transition-all duration-200"
+                className={`w-full bg-[#1F2937] border rounded-md px-4 py-2.5 text-white placeholder-[#4B5563] transition-all duration-200
+                  ${showWalletError || errorType === 'amount'
+                    ? 'border-red-500 focus:ring-red-500'
+                    : 'border-[#374151] focus:ring-[#6366F1]'} 
+                  focus:border-transparent focus:ring-2`}
                 placeholder="0.0"
               />
               <div className="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
                 <span className="text-[#9CA3AF]">RISY</span>
               </div>
             </div>
+            {errorType === 'amount' && (
+              <p className="mt-2 text-xs text-red-500">{error}</p>
+            )}
           </div>
         </div>
 
-        {/* Submit Button */}
+        {/* Only show general errors or wallet connection errors */}
+        {(showWalletError || errorType === 'general') && (
+          <div className="p-3 rounded-md bg-red-500 bg-opacity-10 border border-red-500 border-opacity-50">
+            <div className="flex items-center space-x-2">
+              <svg className="w-5 h-5 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} 
+                  d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" 
+                />
+              </svg>
+              <p className="text-sm text-red-500">
+                {showWalletError 
+                  ? "Please connect your wallet to transfer tokens"
+                  : error
+                }
+              </p>
+            </div>
+          </div>
+        )}
+
+        {/* Updated Submit Button */}
         <button
           type="submit"
-          disabled={isSubmitting || !amount || !recipient}
+          disabled={isSubmitting || !amount || !recipient || !!error || !walletAddress}
           className={`w-full py-3 px-4 rounded-md font-medium transition-all duration-200 
-            ${isSubmitting || !amount || !recipient
+            ${isSubmitting || !amount || !recipient || !!error || !walletAddress
               ? 'bg-[#374151] text-[#9CA3AF] cursor-not-allowed'
               : 'bg-gradient-to-r from-[#6366F1] via-[#3B82F6] to-[#2DD4BF] text-white hover:shadow-lg hover:opacity-90'
             }
           `}
         >
           <div className="flex items-center justify-center space-x-2">
-            {isSubmitting ? (
-              <>
-                <svg className="animate-spin h-5 w-5" viewBox="0 0 24 24">
-                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none" />
-                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
-                </svg>
-                <span>Processing...</span>
-              </>
-            ) : (
-              <>
-                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
-                </svg>
-                <span>Transfer</span>
-              </>
-            )}
+            {getButtonContent()}
           </div>
         </button>
       </form>

@@ -37,6 +37,7 @@ import {
 } from "thirdweb/chains";
 import { CONTRACTS, RISY_TOKEN_CONFIG } from "./constants";
 import { createWallet } from "thirdweb/wallets";
+import { useRisyToken } from "./hooks/useRisyToken";
 
 export default function Home() {
   return (
@@ -259,17 +260,43 @@ function DashboardGrid() {
 }
 
 function TokenBalance() {
+  const { balance, isBalanceLoading, walletAddress } = useRisyToken();
+
+  // Handle disconnected state
+  if (!walletAddress) {
+    return (
+      <div className="col-span-1 p-6 rounded-lg border border-[#374151] bg-[#1F2937] bg-opacity-50">
+        <h2 className="text-xl font-semibold mb-4">Token Balance</h2>
+        <div className="text-[#9CA3AF]">
+          Connect your wallet to view balance.
+        </div>
+      </div>
+    );
+  }
+
+  // Calculate daily limit (10% of total balance)
+  const dailyLimit = Number(balance) * 0.1;
+  const formattedDailyLimit = dailyLimit.toFixed(4);
+
   return (
     <div className="col-span-1 p-6 rounded-lg border border-[#374151] bg-[#1F2937] bg-opacity-50">
       <h2 className="text-xl font-semibold mb-4">Token Balance</h2>
       <div className="space-y-4">
         <div className="flex justify-between items-center">
           <span className="text-[#9CA3AF]">Available Balance</span>
-          <span className="text-2xl font-bold">0 RISY</span>
+          {isBalanceLoading ? (
+            <div className="h-8 w-24 animate-pulse bg-[#374151] rounded"></div>
+          ) : (
+            <span className="text-2xl font-bold">{Number(balance).toFixed(4)} RISY</span>
+          )}
         </div>
         <div className="flex justify-between items-center">
           <span className="text-[#9CA3AF]">Daily Transfer Limit</span>
-          <span className="text-[#34D399]">0 RISY</span>
+          {isBalanceLoading ? (
+            <div className="h-6 w-20 animate-pulse bg-[#374151] rounded"></div>
+          ) : (
+            <span className="text-[#34D399]">{formattedDailyLimit} RISY</span>
+          )}
         </div>
       </div>
     </div>

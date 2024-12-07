@@ -3,7 +3,6 @@
 import Image from "next/image";
 import { ConnectButton, darkTheme } from "thirdweb/react";
 import { client } from "./client";
-import { useState } from "react";
 import { wallets } from "./wallets";
 import {
   ethereum,
@@ -217,6 +216,7 @@ export default function Home() {
 
       <div className="container mx-auto px-4 py-8">
         <DashboardHeader />
+        <WhitelistBanner />
         <DashboardGrid />
       </div>
     </main>
@@ -257,12 +257,38 @@ function DashboardHeader() {
   );
 }
 
+function WhitelistBanner() {
+  const { isWhitelisted, isWhitelistLoading, walletAddress } = useRisyToken();
+
+  if (!walletAddress || isWhitelistLoading || !isWhitelisted) return null;
+
+  return (
+    <div className="mb-8 p-4 rounded-lg bg-gradient-to-r from-[#6366F1] to-[#2DD4BF] bg-opacity-10">
+      <div className="flex items-center space-x-3">
+        <div className="p-2 rounded-full bg-white bg-opacity-10">
+          <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} 
+              d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"
+            />
+          </svg>
+        </div>
+        <div>
+          <h3 className="font-semibold text-white">Whitelisted Account</h3>
+          <p className="text-sm text-white text-opacity-90">
+            Your account is whitelisted. You are exempt from transfer limits and HODL restrictions.
+          </p>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 function DashboardGrid() {
   return (
-    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-      <TokenBalance />
-      <TransferPanel />
-    </div>
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <TokenBalance />
+        <TransferPanel />
+      </div>
   );
 }
 
@@ -276,6 +302,7 @@ function TokenBalance() {
     isBalanceLoading, 
     isTransferLimitLoading,
     isMaxBalanceLoading,
+    isWhitelisted,
     walletAddress,
     resetTime,
   } = useRisyToken();
@@ -310,6 +337,9 @@ function TokenBalance() {
     );
   }
 
+  // Only show limits if not whitelisted
+  const showLimits = !isWhitelisted;
+
   return (
     <div className="col-span-1 p-6 rounded-lg border border-[#374151] bg-[#1F2937] bg-opacity-50 transition-all duration-200 hover:bg-opacity-70 hover:shadow-lg">
       <h2 className="text-xl font-semibold mb-6 bg-gradient-to-r from-[#6366F1] to-[#2DD4BF] bg-clip-text text-transparent">
@@ -333,76 +363,81 @@ function TokenBalance() {
           )}
         </div>
 
-        {/* Timed Transfer Limit Section */}
-        <div className="p-4 rounded-lg bg-[#111827] bg-opacity-50">
-          <div className="flex justify-between items-start mb-2">
-            <span className="w-full text-[#9CA3AF] text-sm font-medium">
-              Remaining Transfer Limit
-            </span>
-            {!isTransferLimitLoading && globalTransferLimit && (
-              <span className="w-full text-right text-xs text-[#9CA3AF]">
-                {(Number(globalTransferLimit[1]) / 1e16).toFixed(0)}% per{' '}
-                {(Number(globalTransferLimit[0]) / 3600).toFixed(0)}h
-              </span>
-            )}
-          </div>
-          {isTransferLimitLoading ? (
-            <div className="h-7 w-28 animate-pulse bg-[#374151] rounded mt-2"></div>
-          ) : (
-            <div className="space-y-2">
-              <div className="flex items-baseline space-x-2">
-                <span className="text-xl font-semibold text-[#34D399]">
-                  {Number(timedTransferLimit).toFixed(2)}
+        {/* Only show limit sections if not whitelisted */}
+        {showLimits && (
+          <>
+            {/* Timed Transfer Limit Section */}
+            <div className="p-4 rounded-lg bg-[#111827] bg-opacity-50">
+              <div className="flex justify-between items-start mb-2">
+                <span className="w-full text-[#9CA3AF] text-sm font-medium">
+                  Remaining Transfer Limit
                 </span>
-                <span className="text-sm text-[#9CA3AF]">RISY</span>
-              </div>
-              {resetTime && (
-                <div className="flex items-center space-x-1">
-                  <svg className="w-4 h-4 text-[#9CA3AF]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} 
-                      d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" 
-                    />
-                  </svg>
-                  <span className="text-xs text-[#9CA3AF]">
-                    Resets in {resetTime}
+                {!isTransferLimitLoading && globalTransferLimit && (
+                  <span className="w-full text-right text-xs text-[#9CA3AF]">
+                    {(Number(globalTransferLimit[1]) / 1e16).toFixed(0)}% per{' '}
+                    {(Number(globalTransferLimit[0]) / 3600).toFixed(0)}h
                   </span>
+                )}
+              </div>
+              {isTransferLimitLoading ? (
+                <div className="h-7 w-28 animate-pulse bg-[#374151] rounded mt-2"></div>
+              ) : (
+                <div className="space-y-2">
+                  <div className="flex items-baseline space-x-2">
+                    <span className="text-xl font-semibold text-[#34D399]">
+                      {Number(timedTransferLimit).toFixed(2)}
+                    </span>
+                    <span className="text-sm text-[#9CA3AF]">RISY</span>
+                  </div>
+                  {resetTime && (
+                    <div className="flex items-center space-x-1">
+                      <svg className="w-4 h-4 text-[#9CA3AF]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} 
+                          d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" 
+                        />
+                      </svg>
+                      <span className="text-xs text-[#9CA3AF]">
+                        Resets in {resetTime}
+                      </span>
+                    </div>
+                  )}
                 </div>
               )}
             </div>
-          )}
-        </div>
 
-        {/* ICO HODL Limit Section */}
-        <div className="p-4 rounded-lg bg-[#111827] bg-opacity-50">
-          <div className="flex justify-between items-start mb-2">
-            <span className="w-full text-[#9CA3AF] text-sm font-medium">
-              ICO HODL Limit
-            </span>
-            <span className="w-full text-right text-xs text-[#9CA3AF]">
-              Max: {Number(maxBalance).toFixed(2)} RISY
-            </span>
-          </div>
-          {isMaxBalanceLoading ? (
-            <div className="h-7 w-28 animate-pulse bg-[#374151] rounded mt-2"></div>
-          ) : (
-            <div className="space-y-2">
-              <div className="flex items-baseline space-x-2">
-                <span className="text-xl font-semibold text-[#818CF8]">
-                  {Number(remainingHodlLimit).toFixed(2)}
+            {/* ICO HODL Limit Section */}
+            <div className="p-4 rounded-lg bg-[#111827] bg-opacity-50">
+              <div className="flex justify-between items-start mb-2">
+                <span className="w-full text-[#9CA3AF] text-sm font-medium">
+                  ICO HODL Limit
                 </span>
-                <span className="text-sm text-[#9CA3AF]">RISY remaining</span>
+                <span className="w-full text-right text-xs text-[#9CA3AF]">
+                  Max: {Number(maxBalance).toFixed(2)} RISY
+                </span>
               </div>
-              <div className="w-full bg-[#374151] rounded-full h-2">
-                <div 
-                  className="bg-gradient-to-r from-[#6366F1] to-[#2DD4BF] h-2 rounded-full transition-all duration-500"
-                  style={{ 
-                    width: `${Math.min(100, (Number(balance) / Number(maxBalance)) * 100)}%` 
-                  }}
-                />
-              </div>
+              {isMaxBalanceLoading ? (
+                <div className="h-7 w-28 animate-pulse bg-[#374151] rounded mt-2"></div>
+              ) : (
+                <div className="space-y-2">
+                  <div className="flex items-baseline space-x-2">
+                    <span className="text-xl font-semibold text-[#818CF8]">
+                      {Number(remainingHodlLimit).toFixed(2)}
+                    </span>
+                    <span className="text-sm text-[#9CA3AF]">RISY remaining</span>
+                  </div>
+                  <div className="w-full bg-[#374151] rounded-full h-2">
+                    <div 
+                      className="bg-gradient-to-r from-[#6366F1] to-[#2DD4BF] h-2 rounded-full transition-all duration-500"
+                      style={{ 
+                        width: `${Math.min(100, (Number(balance) / Number(maxBalance)) * 100)}%` 
+                      }}
+                    />
+                  </div>
+                </div>
+              )}
             </div>
-          )}
-        </div>
+          </>
+        )}
       </div>
     </div>
   );
@@ -421,6 +456,8 @@ function TransferPanel() {
     recipientBalance,
     recipientRemainingHodl,
     isValidAddress,
+    isBurnAddress,
+    isDAOAddress,
   } = useRisyTransfer(balance, timedTransferLimit);
 
   // Determine if we should show wallet connection error
@@ -515,6 +552,19 @@ function TransferPanel() {
       );
     }
 
+    if (isBurnAddress) {
+      return (
+        <>
+          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} 
+              d="M17.657 18.657A8 8 0 016.343 7.343S7 9 9 10c0-2 .5-5 2.986-7C14 5 16.09 5.777 17.656 7.343A7.975 7.975 0 0120 13a7.975 7.975 0 01-2.343 5.657z" 
+            />
+          </svg>
+          <span>Burn {amount} RISY</span>
+        </>
+      );
+    }
+
     return (
       <>
         <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -528,7 +578,7 @@ function TransferPanel() {
   return (
     <div className="col-span-1 p-6 rounded-lg border border-[#374151] bg-[#1F2937] bg-opacity-50 transition-all duration-200 hover:bg-opacity-70 hover:shadow-lg">
       <h2 className="text-xl font-semibold mb-6 bg-gradient-to-r from-[#6366F1] to-[#2DD4BF] bg-clip-text text-transparent">
-        Transfer Tokens
+        {isBurnAddress ? 'Burn Tokens' : isDAOAddress ? 'Transfer to DAO' : 'Transfer Tokens'}
       </h2>
       <form onSubmit={(e) => { e.preventDefault(); handleTransfer(); }} className="space-y-6">
         <div className="space-y-4">
@@ -619,6 +669,38 @@ function TransferPanel() {
                   ? "Please connect your wallet to transfer tokens"
                   : error
                 }
+              </p>
+            </div>
+          </div>
+        )}
+
+        {/* Add burn notice when null address is entered */}
+        {isBurnAddress && (
+          <div className="p-3 rounded-md bg-[#818CF8] bg-opacity-10 border border-[#818CF8] border-opacity-50">
+            <div className="flex items-start space-x-2">
+              <svg className="w-5 h-5 text-[#818CF8] mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} 
+                  d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" 
+                />
+              </svg>
+              <p className="text-sm text-[#818CF8]">
+                Sending tokens to the null address (0x0) will burn them permanently. This action cannot be undone.
+              </p>
+            </div>
+          </div>
+        )}
+
+        {/* Add DAO notice when transferring to DAO */}
+        {isDAOAddress && (
+          <div className="p-3 rounded-md bg-[#818CF8] bg-opacity-10 border border-[#818CF8] border-opacity-50">
+            <div className="flex items-start space-x-2">
+              <svg className="w-5 h-5 text-[#818CF8] mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} 
+                  d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" 
+                />
+              </svg>
+              <p className="text-sm text-[#818CF8]">
+                Transferring to the DAO address. This transfer is exempt from time-based transfer limits.
               </p>
             </div>
           </div>

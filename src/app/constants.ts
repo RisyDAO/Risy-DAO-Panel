@@ -8,4 +8,6 @@ export const RISY_TOKEN_CONFIG = {
   symbol: "RISY",
   decimals: 18,
   icon: "./img/logo.png",
-} as const; 
+} as const;
+
+export const RISY_DAO = CONTRACTS.DAO;

@@ -67,6 +67,13 @@ export function useRisyToken() {
     params: []
   });
 
+  // Check if wallet is whitelisted
+  const { data: isWhitelisted, isLoading: isWhitelistLoading } = useReadContract({
+    contract: risyTokenContract,
+    method: "function isWhiteListed(address account) view returns (bool)",
+    params: walletAddress ? [walletAddress] : ["0x0000000000000000000000000000000000000000"]
+  });
+
   // Calculate time until reset
   useEffect(() => {
     if (!currentDay || !globalTransferLimit?.[0]) return;
@@ -125,6 +132,8 @@ export function useRisyToken() {
     isBalanceLoading,
     isTransferLimitLoading: isTransferDetailsLoading || isTransferLimitLoading,
     isMaxBalanceLoading,
+    isWhitelisted,
+    isWhitelistLoading,
     resetTime,
     walletAddress,
   };

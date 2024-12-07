@@ -9,13 +9,6 @@ function isValidEthereumAddress(address: string): boolean {
   return /^0x[a-fA-F0-9]{40}$/.test(address);
 }
 
-const BUFFER = 0.01; // Buffer for limits
-
-function calculateWithBuffer(value: number): number {
-  if (isNaN(value) || !isFinite(value)) return 0;
-  return Math.max(0, value - BUFFER);
-}
-
 function formatBalance(value: bigint | undefined, decimals: number): string {
   if (!value) return "0";
   try {
@@ -103,9 +96,8 @@ export function useRisyTransfer(senderBalance: string, timedTransferLimit: strin
 
       // Skip HODL limit check for burn address and DAO
       if (!isBurnAddress(recipient) && !isDAOAddress(recipient) && amount) {
-        const availableHodl = calculateWithBuffer(numRecipientHodl);
-        if (!isNaN(numAmount) && numAmount > 0 && numAmount > availableHodl) {
-          setError(`Exceeds recipient's HODL limit (max: ${availableHodl.toFixed(2)} RISY)`);
+        if (!isNaN(numAmount) && numAmount > 0 && numAmount > numRecipientHodl) {
+          setError(`Exceeds recipient's HODL limit (max: ${numRecipientHodl.toFixed(2)} RISY)`);
           return;
         }
       }
@@ -118,17 +110,15 @@ export function useRisyTransfer(senderBalance: string, timedTransferLimit: strin
         return;
       }
 
-      const availableBalance = calculateWithBuffer(numSenderBalance);
-      if (numAmount > availableBalance) {
-        setError(`Insufficient balance (max: ${availableBalance.toFixed(2)} RISY)`);
+      if (numAmount > numSenderBalance) {
+        setError(`Insufficient balance (max: ${numSenderBalance.toFixed(2)} RISY)`);
         return;
       }
 
       // Skip transfer limit check if recipient is DAO or sender is whitelisted
       if (!isDAOAddress(recipient) && !isWhitelisted) {
-        const availableTransferLimit = calculateWithBuffer(numTransferLimit);
-        if (numAmount > availableTransferLimit) {
-          setError(`Exceeds transfer limit (max: ${availableTransferLimit.toFixed(2)} RISY)`);
+        if (numAmount > numTransferLimit) {
+          setError(`Exceeds transfer limit (max: ${numTransferLimit.toFixed(2)} RISY)`);
           return;
         }
       }
@@ -153,9 +143,9 @@ export function useRisyTransfer(senderBalance: string, timedTransferLimit: strin
     const numRecipientHodl = Number(recipientRemainingHodl);
 
     const maxAmount = Math.min(
-      calculateWithBuffer(numTransferLimit),
-      calculateWithBuffer(numSenderBalance),
-      calculateWithBuffer(numRecipientHodl)
+      numTransferLimit,
+      numSenderBalance,
+      numRecipientHodl
     );
 
     setAmount(maxAmount > 0 ? maxAmount.toFixed(2) : "0");

@@ -3,18 +3,6 @@ import { RISY_TOKEN_CONFIG } from "../constants";
 import { risyTokenContract } from "../client";
 import { useEffect, useState } from "react";
 
-const BUFFER = 0.01; // Buffer for limits
-
-function formatWithBuffer(value: number): string {
-  if (isNaN(value) || !isFinite(value)) return "0";
-  const formatted = value < BUFFER ? "0" : (value - BUFFER).toFixed(2);
-  // Handle scientific notation
-  return Number(formatted).toLocaleString('en-US', {
-    maximumFractionDigits: 2,
-    useGrouping: false
-  });
-}
-
 function formatBalance(value: bigint | undefined, decimals: number): string {
   if (!value) return "0";
   try {
@@ -106,12 +94,11 @@ export function useRisyToken() {
   let formattedTimedTransferLimit = "0";
   
   if (transferLimitDetails?.[0] && Number(transferLimitDetails[0]) > 0) {
-    const rawLimit = Number(transferLimitDetails[0]) / Math.pow(10, RISY_TOKEN_CONFIG.decimals);
-    formattedTimedTransferLimit = formatWithBuffer(rawLimit);
+    formattedTimedTransferLimit = (Number(transferLimitDetails[0]) / Math.pow(10, RISY_TOKEN_CONFIG.decimals)).toFixed(2);
   } else if (globalTransferLimit && balance) {
     const [, transferLimitPercent] = globalTransferLimit;
     const rawLimit = Number(balance) * (Number(transferLimitPercent) / Math.pow(10, 18));
-    formattedTimedTransferLimit = formatWithBuffer(rawLimit / Math.pow(10, RISY_TOKEN_CONFIG.decimals));
+    formattedTimedTransferLimit = (rawLimit / Math.pow(10, RISY_TOKEN_CONFIG.decimals)).toFixed(2);
   }
 
   // Calculate remaining ICO HODL limit with buffer
@@ -121,7 +108,7 @@ export function useRisyToken() {
     ? Math.max(0, Number(formattedMaxBalance) - Number(formattedBalance))
     : 0;
 
-  const remainingHodlLimit = formatWithBuffer(rawHodlLimit);
+  const remainingHodlLimit = rawHodlLimit.toFixed(2);
 
   return {
     balance: formattedBalance,

@@ -3,9 +3,9 @@ import { Card } from "../shared/Card";
 import { TransferButton } from "./TransferButton";
 import { TransferNotice } from "./TransferNotice";
 import { TransferInput } from "./TransferInput";
-import { StatusBadge } from "../shared/StatusBadge";
 import { useToken } from "../../contexts/TokenContext";
 import { useWallet } from "../../contexts/WalletContext";
+import { ErrorFallback } from "../shared/ErrorFallback";
 
 interface TransferPanelProps {
   walletAddress?: string;
@@ -62,21 +62,13 @@ function TransferPanelContent({ walletAddress }: TransferPanelProps) {
 
       {/* General Error */}
       {(showWalletError || errorType === 'general') && (
-        <StatusBadge
-          variant="error"
-          icon={
-            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} 
-                d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" 
-              />
-            </svg>
-          }
-        >
-          {showWalletError 
+        <ErrorFallback
+          title={showWalletError ? "Wallet Not Connected" : "Transfer Error"}
+          message={showWalletError 
             ? "Please connect your wallet to transfer tokens"
-            : state.error
+            : state.error || "An error occurred while processing your transfer"
           }
-        </StatusBadge>
+        />
       )}
 
       <TransferButton />
@@ -89,27 +81,7 @@ export function TransferPanel({ walletAddress }: TransferPanelProps) {
 
   return (
     <Card title={state.isBurnAddress ? 'Burn Tokens' : state.isDAOAddress ? 'Transfer to DAO' : 'Transfer Tokens'}>
-      <ErrorBoundary
-        fallback={
-          <StatusBadge
-            variant="error"
-            icon={
-              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} 
-                  d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" 
-                />
-              </svg>
-            }
-          >
-            <div>
-              <h3 className="font-semibold text-inherit">Failed to load transfer panel</h3>
-              <p className="text-sm opacity-90">
-                Please try refreshing the page
-              </p>
-            </div>
-          </StatusBadge>
-        }
-      >
+      <ErrorBoundary title="Failed to load transfer panel">
         <TransferPanelContent walletAddress={walletAddress} />
       </ErrorBoundary>
     </Card>

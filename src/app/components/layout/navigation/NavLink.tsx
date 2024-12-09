@@ -1,6 +1,7 @@
+import { ErrorBoundary } from "../../shared/ErrorBoundary";
 import { type NavLinkProps } from "../../../types/navigation";
 
-export function NavLink({ href, label, active = false }: NavLinkProps) {
+function NavLinkContent({ href, label, active = false }: NavLinkProps) {
   return (
     <a
       href={href}
@@ -14,5 +15,13 @@ export function NavLink({ href, label, active = false }: NavLinkProps) {
     >
       {label}
     </a>
+  );
+}
+
+export function NavLink(props: NavLinkProps) {
+  return (
+    <ErrorBoundary title="Failed to load navigation link">
+      <NavLinkContent {...props} />
+    </ErrorBoundary>
   );
 } 

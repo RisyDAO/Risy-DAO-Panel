@@ -2,10 +2,13 @@
 
 import { Component, type ReactNode } from "react";
 import { StatusBadge } from "./StatusBadge";
+import { ErrorFallback } from "./ErrorFallback";
 
 interface Props {
   children: ReactNode;
   fallback?: ReactNode;
+  title?: string;
+  message?: string;
 }
 
 interface State {
@@ -25,24 +28,15 @@ export class ErrorBoundary extends Component<Props, State> {
 
   render() {
     if (this.state.hasError) {
-      return this.props.fallback || (
-        <StatusBadge
-          variant="error"
-          icon={
-            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} 
-                d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" 
-              />
-            </svg>
-          }
-        >
-          <div>
-            <h3 className="font-semibold text-inherit">Something went wrong</h3>
-            <p className="text-sm opacity-90">
-              {this.state.error?.message || "Please try refreshing the page"}
-            </p>
-          </div>
-        </StatusBadge>
+      if (this.props.fallback) {
+        return this.props.fallback;
+      }
+      
+      return (
+        <ErrorFallback
+          title={this.props.title || "Something went wrong"}
+          message={this.props.message || this.state.error?.message || "Please try refreshing the page"}
+        />
       );
     }
 

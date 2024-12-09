@@ -1,6 +1,7 @@
+import { ErrorBoundary } from "../ErrorBoundary";
 import { type InputFieldProps } from "../../../types/shared";
 
-export function InputField({
+function InputFieldContent({
   error,
   className = '',
   ...props
@@ -19,5 +20,13 @@ export function InputField({
       `}
       {...props}
     />
+  );
+}
+
+export function InputField(props: InputFieldProps) {
+  return (
+    <ErrorBoundary title="Failed to load input field">
+      <InputFieldContent {...props} />
+    </ErrorBoundary>
   );
 } 

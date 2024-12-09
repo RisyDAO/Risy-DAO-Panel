@@ -6,7 +6,6 @@ import { HodlLimitDisplay } from "./balance/HodlLimitDisplay";
 import { DisconnectedState } from "./balance/DisconnectedState";
 import { useToken } from "../../contexts/TokenContext";
 import { useWallet } from "../../contexts/WalletContext";
-import { StatusBadge } from "../shared/StatusBadge";
 
 function TokenBalanceContent() {
   const {
@@ -60,27 +59,7 @@ function TokenBalanceContent() {
 export function TokenBalance() {
   return (
     <Card title="Token Balance">
-      <ErrorBoundary
-        fallback={
-          <StatusBadge
-            variant="error"
-            icon={
-              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} 
-                  d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" 
-                />
-              </svg>
-            }
-          >
-            <div>
-              <h3 className="font-semibold text-inherit">Failed to load balance</h3>
-              <p className="text-sm opacity-90">
-                Please try refreshing the page
-              </p>
-            </div>
-          </StatusBadge>
-        }
-      >
+      <ErrorBoundary title="Failed to load balance information">
         <TokenBalanceContent />
       </ErrorBoundary>
     </Card>

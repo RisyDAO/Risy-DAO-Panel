@@ -1,6 +1,7 @@
+import { ErrorBoundary } from "../ErrorBoundary";
 import { type ButtonContentProps } from "../../../types/shared";
 
-export function ButtonContent({ isLoading, icon, children }: ButtonContentProps) {
+function ButtonContentInner({ isLoading, icon, children }: ButtonContentProps) {
   if (isLoading) {
     return (
       <div className="flex items-center space-x-2">
@@ -19,7 +20,16 @@ export function ButtonContent({ isLoading, icon, children }: ButtonContentProps)
 
   return (
     <div className="flex items-center space-x-2">
+      {icon && <span>{icon}</span>}
       {children}
     </div>
+  );
+}
+
+export function ButtonContent(props: ButtonContentProps) {
+  return (
+    <ErrorBoundary title="Failed to load button content">
+      <ButtonContentInner {...props} />
+    </ErrorBoundary>
   );
 } 

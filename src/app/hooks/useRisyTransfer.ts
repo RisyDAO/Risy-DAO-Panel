@@ -63,9 +63,9 @@ export function useRisyTransfer(senderBalance: string, timedTransferLimit: strin
   const formattedRecipientBalance = formatBalance(recipientBalance, RISY_TOKEN_CONFIG.decimals);
   const formattedMaxBalance = formatBalance(maxBalance, RISY_TOKEN_CONFIG.decimals);
 
-  // Modified logic to handle undefined/zero HODL limit
-  const recipientRemainingHodl = maxBalance && recipientBalance
-    ? Number(recipientBalance) === 0 
+  // Modified logic to handle undefined/zero HODL limit for recipients
+  const recipientRemainingHodl = maxBalance 
+    ? Number(recipientBalance) === 0
       ? Number(formattedMaxBalance)  // If recipient has no balance, they can receive up to max balance
       : Math.max(0, Number(formattedMaxBalance) - Number(formattedRecipientBalance))
     : 0;

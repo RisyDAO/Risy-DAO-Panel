@@ -1,27 +1,20 @@
 import { ContractReader } from "../types";
-import { RISY_TOKEN_CONFIG } from "../../config/tokens";
-import { formatBalance } from "../../utils/formatUtils";
-import { NULL_ADDRESS } from "../../utils/addressUtils";
 import { readContract } from "thirdweb";
-import { type TokenBalance, type TokenLimits } from "../../types/token";
+import { BaseTokenService } from "./baseTokenService";
+import { type TokenLimits } from "../../types/token";
 
-export class TokenReader implements ContractReader<typeof import("../../client").risyTokenContract> {
-  constructor(public contract: typeof import("../../client").risyTokenContract) {}
-
-  async getBalance(address: string = NULL_ADDRESS): Promise<TokenBalance> {
+export class TokenReader extends BaseTokenService<typeof import("../../client").risyTokenContract> implements ContractReader<typeof import("../../client").risyTokenContract> {
+  async getBalance(address?: string) {
     const balance = await readContract({
       contract: this.contract,
       method: "function balanceOf(address account) view returns (uint256)",
-      params: [address]
+      params: [this.getDefaultAddress(address)]
     });
     
-    return {
-      balance,
-      formattedBalance: formatBalance(balance, RISY_TOKEN_CONFIG.decimals)
-    };
+    return this.formatTokenBalance(balance);
   }
 
-  async getTotalSupply(): Promise<bigint> {
+  async getTotalSupply() {
     return readContract({
       contract: this.contract,
       method: "function totalSupply() view returns (uint256)",
@@ -29,26 +22,18 @@ export class TokenReader implements ContractReader<typeof import("../../client")
     });
   }
 
-  async getDecimals(): Promise<number> {
-    return readContract({
-      contract: this.contract,
-      method: "function decimals() view returns (uint8)",
-      params: []
-    });
-  }
-
-  async getTransferLimitDetails(address: string = NULL_ADDRESS): Promise<TokenLimits> {
+  async getTransferLimitDetails(address?: string): Promise<TokenLimits> {
     const [transferable, percentTransferable] = await readContract({
       contract: this.contract,
       method: "function getTransferLimitDetails(address account) view returns (uint256 transferable, uint256 percentTransferable)",
-      params: [address]
+      params: [this.getDefaultAddress(address)]
     });
     
     return {
       transferLimit: transferable,
       percentTransferable,
-      maxBalance: 0n, // Will be set by separate call
-      timeWindow: 86400n // Default 1 day in seconds
+      maxBalance: 0n,
+      timeWindow: 86400n
     };
   }
 
@@ -61,7 +46,7 @@ export class TokenReader implements ContractReader<typeof import("../../client")
     
     return {
       maxBalance,
-      formattedMaxBalance: formatBalance(maxBalance, RISY_TOKEN_CONFIG.decimals)
+      formattedMaxBalance: this.formatTokenBalance(maxBalance).formattedBalance
     };
   }
 
@@ -81,11 +66,15 @@ export class TokenReader implements ContractReader<typeof import("../../client")
     });
   }
 
-  async isWhitelisted(address: string = NULL_ADDRESS) {
+  async isWhitelisted(address?: string) {
     return readContract({
       contract: this.contract,
       method: "function isWhiteListed(address account) view returns (bool)",
-      params: [address]
+      params: [this.getDefaultAddress(address)]
     });
+  }
+
+  getDecimals(): number {
+    return this.getDecimals();
   }
 } 

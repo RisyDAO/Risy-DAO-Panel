@@ -1,17 +1,23 @@
 import { ContractWriter, TransferResult } from "../types";
 import { prepareContractCall, sendTransaction } from "thirdweb";
-import { toWei } from "../../utils/formatUtils";
-import { RISY_TOKEN_CONFIG } from "../../config/tokens";
+import { BaseTokenService } from "./baseTokenService";
 import { type Account } from "thirdweb/wallets";
+import { TransactionError } from "../../utils/errorUtils";
 
-export class TokenWriter implements ContractWriter<typeof import("../../client").risyTokenContract> {
+export class TokenWriter extends BaseTokenService<typeof import("../../client").risyTokenContract> implements ContractWriter<typeof import("../../client").risyTokenContract> {
   constructor(
-    public contract: typeof import("../../client").risyTokenContract,
+    contract: typeof import("../../client").risyTokenContract,
     public account: Account
-  ) {}
+  ) {
+    super(contract);
+  }
 
   async transfer(to: string, amount: string): Promise<TransferResult> {
-    const amountInWei = toWei(amount, RISY_TOKEN_CONFIG.decimals);
+    if (!this.validateAmount(amount)) {
+      throw new TransactionError("Invalid amount");
+    }
+
+    const amountInWei = this.convertToWei(amount);
     
     const transaction = await prepareContractCall({
       contract: this.contract,
@@ -31,7 +37,11 @@ export class TokenWriter implements ContractWriter<typeof import("../../client")
   }
 
   async burn(amount: string): Promise<TransferResult> {
-    const amountInWei = toWei(amount, RISY_TOKEN_CONFIG.decimals);
+    if (!this.validateAmount(amount)) {
+      throw new TransactionError("Invalid amount");
+    }
+
+    const amountInWei = this.convertToWei(amount);
     
     const transaction = await prepareContractCall({
       contract: this.contract,

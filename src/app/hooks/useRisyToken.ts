@@ -104,11 +104,12 @@ export function useRisyToken() {
   // Calculate remaining ICO HODL limit with buffer
   const formattedMaxBalance = formatBalance(maxBalance, RISY_TOKEN_CONFIG.decimals);
   
+  // Modified logic to handle undefined/zero HODL limit
   const rawHodlLimit = maxBalance && balance
-    ? Math.max(0, Number(formattedMaxBalance) - Number(formattedBalance))
-    : 0;
+    ? Number(formattedMaxBalance) - Number(formattedBalance)
+    : Number(formattedMaxBalance);
 
-  const remainingHodlLimit = rawHodlLimit.toFixed(2);
+  const remainingHodlLimit = Math.max(0, rawHodlLimit).toFixed(2);
 
   return {
     balance: formattedBalance,

@@ -63,8 +63,11 @@ export function useRisyTransfer(senderBalance: string, timedTransferLimit: strin
   const formattedRecipientBalance = formatBalance(recipientBalance, RISY_TOKEN_CONFIG.decimals);
   const formattedMaxBalance = formatBalance(maxBalance, RISY_TOKEN_CONFIG.decimals);
 
+  // Modified logic to handle undefined/zero HODL limit
   const recipientRemainingHodl = maxBalance && recipientBalance
-    ? Math.max(0, Number(formattedMaxBalance) - Number(formattedRecipientBalance))
+    ? Number(recipientBalance) === 0 
+      ? Number(formattedMaxBalance)  // If recipient has no balance, they can receive up to max balance
+      : Math.max(0, Number(formattedMaxBalance) - Number(formattedRecipientBalance))
     : 0;
 
   // Get whitelist status
@@ -96,9 +99,15 @@ export function useRisyTransfer(senderBalance: string, timedTransferLimit: strin
 
       // Skip HODL limit check for burn address and DAO
       if (!isBurnAddress(recipient) && !isDAOAddress(recipient) && amount) {
-        if (!isNaN(numAmount) && numAmount > 0 && numAmount > numRecipientHodl) {
-          setError(`Exceeds recipient's HODL limit (max: ${numRecipientHodl.toFixed(2)} RISY)`);
-          return;
+        if (!isNaN(numAmount) && numAmount > 0) {
+          const effectiveHodlLimit = numRecipientHodl === 0 && maxBalance 
+            ? Number(formatBalance(maxBalance, RISY_TOKEN_CONFIG.decimals))
+            : numRecipientHodl;
+            
+          if (numAmount > effectiveHodlLimit) {
+            setError(`Exceeds recipient's HODL limit (max: ${effectiveHodlLimit.toFixed(2)} RISY)`);
+            return;
+          }
         }
       }
     }
@@ -125,7 +134,7 @@ export function useRisyTransfer(senderBalance: string, timedTransferLimit: strin
     }
 
     setError(null);
-  }, [amount, recipient, senderBalance, timedTransferLimit, recipientRemainingHodl, isWhitelisted]);
+  }, [amount, recipient, senderBalance, timedTransferLimit, recipientRemainingHodl, isWhitelisted, maxBalance]);
 
   // Calculate maximum transferable amount
   useEffect(() => {

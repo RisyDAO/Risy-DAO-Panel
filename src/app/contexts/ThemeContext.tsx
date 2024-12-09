@@ -1,51 +1,38 @@
 "use client";
 
-import { createContext, useContext, useState, useCallback } from "react";
-import { type ThemeContextValue, type ThemeColors, type ProviderProps } from "../types/theme";
-
-const defaultColors: ThemeColors = {
-  primary: '#6366F1',
-  secondary: '#3B82F6',
-  accent: '#2DD4BF',
-  background: '#111827',
-  text: '#FFFFFF',
-  border: '#374151',
-};
+import { createContext, useContext, useState, useCallback, useEffect } from "react";
+import { type ThemeContextValue, type ThemeMode, type ProviderProps } from "../types/theme";
 
 const ThemeContext = createContext<ThemeContextValue | undefined>(undefined);
 
 export function ThemeProvider({ children }: ProviderProps) {
-  const [mode, setMode] = useState<'dark' | 'light'>('dark');
-  const [colors, setColors] = useState<ThemeColors>(defaultColors);
+  const [mode, setMode] = useState<ThemeMode>('dark');
+
+  // Initialize theme from system preference
+  useEffect(() => {
+    const isDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+    setMode(isDark ? 'dark' : 'light');
+  }, []);
+
+  // Update HTML class when theme changes
+  useEffect(() => {
+    document.documentElement.classList.remove('light', 'dark');
+    document.documentElement.classList.add(mode);
+  }, [mode]);
 
   const toggleTheme = useCallback(() => {
     setMode(prev => prev === 'dark' ? 'light' : 'dark');
   }, []);
 
-  const setThemeColors = useCallback((newColors: Partial<ThemeColors>) => {
-    setColors(prev => ({ ...prev, ...newColors }));
-  }, []);
-
   const value: ThemeContextValue = {
     mode,
-    colors,
     toggleTheme,
-    setThemeColors,
   };
 
   return (
     <ThemeContext.Provider value={value}>
-      <div className={mode}>
-        <div style={{ 
-          '--color-primary': colors.primary,
-          '--color-secondary': colors.secondary,
-          '--color-accent': colors.accent,
-          '--color-background': colors.background,
-          '--color-text': colors.text,
-          '--color-border': colors.border,
-        } as React.CSSProperties}>
-          {children}
-        </div>
+      <div className={`min-h-screen bg-background ${mode} text-text`}>
+        {children}
       </div>
     </ThemeContext.Provider>
   );

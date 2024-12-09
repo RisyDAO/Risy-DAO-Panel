@@ -26,7 +26,7 @@ export interface InputProps extends InputHTMLAttributes<HTMLInputElement> {
   label?: string;
   error?: string;
   rightElement?: ReactNode;
-  helperText?: string;
+  helperText?: string | string[];
 }
 
 export interface InputFieldProps extends InputHTMLAttributes<HTMLInputElement> {
@@ -39,7 +39,7 @@ export interface InputLabelProps {
 
 export interface InputMessageProps {
   error?: string;
-  helperText?: string;
+  helperText?: string | string[];
 }
 
 // Card Types

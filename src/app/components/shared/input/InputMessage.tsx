@@ -8,7 +8,13 @@ export function InputMessage({ error, helperText }: InputMessageProps) {
       {error ? (
         <p className="text-red-500">{error}</p>
       ) : helperText ? (
-        <p className="text-[#9CA3AF]">{helperText}</p>
+        Array.isArray(helperText) ? (
+          helperText.map((text, index) => (
+            <p key={index} className="text-[#9CA3AF]">{text}</p>
+          ))
+        ) : (
+          <p className="text-[#9CA3AF]">{helperText}</p>
+        )
       ) : null}
     </div>
   );

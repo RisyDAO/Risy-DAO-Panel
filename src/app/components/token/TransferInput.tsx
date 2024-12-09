@@ -12,6 +12,11 @@ function TransferInputContent({
   const { transfer: { state } } = useToken();
 
   if (type === "recipient") {
+    const helperText = value && state.isValidAddress ? [
+      `Balance: ${state.recipientBalance} RISY`,
+      `HODL Limit Available: ${state.recipientRemainingHodl} RISY`
+    ] : undefined;
+
     return (
       <Input
         label="Recipient Address"
@@ -32,10 +37,7 @@ function TransferInputContent({
             </svg>
           </button>
         }
-        helperText={value && state.isValidAddress ? `
-          Balance: ${state.recipientBalance} RISY
-          HODL Limit Available: ${state.recipientRemainingHodl} RISY
-        ` : undefined}
+        helperText={helperText}
       />
     );
   }

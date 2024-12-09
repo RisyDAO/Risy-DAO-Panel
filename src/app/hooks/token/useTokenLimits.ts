@@ -64,6 +64,10 @@ export function useTokenLimits() {
           transferableAmount = (balanceResult.balance * globalLimit[1]) / BigInt(10 ** 18);
         }
 
+        if(transferableAmount > 0n) {
+          transferableAmount = transferableAmount - BigInt(10 ** 16);
+        }
+
         const formattedTransferLimit = formatBalance(transferableAmount, RISY_TOKEN_CONFIG.decimals);
 
         // Set up reset time calculation

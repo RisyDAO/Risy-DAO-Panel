@@ -19,6 +19,7 @@ export function getBadgeStyles(variant: StatusBadgeVariant): string {
         bg-red-900 bg-opacity-20 
         border-red-500 
         text-red-400
+        break-all
       `;
     case 'info':
     default:

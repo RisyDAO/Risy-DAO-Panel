@@ -4,13 +4,22 @@ import { createContext, useContext, useCallback } from "react";
 import { useTokenBalance } from "../hooks/token/useTokenBalance";
 import { useTokenLimits } from "../hooks/token/useTokenLimits";
 import { useTokenTransfer } from "../hooks/token/useTokenTransfer";
-import { type TokenContextValue, type TokenTransferState, type ProviderProps, type TokenTransferHookResult } from "../types/context";
+import { useRisyToken } from "../hooks/token/useRisyToken";
+import { type TokenContextValue, type ProviderProps } from "../types/context";
 import { useWallet } from "./WalletContext";
 
 const TokenContext = createContext<TokenContextValue | undefined>(undefined);
 
 export function TokenProvider({ children }: ProviderProps) {
   const { walletAddress, isWhitelisted } = useWallet();
+
+  // Get token configuration and metadata
+  const {
+    config,
+    totalSupply,
+    decimals,
+    isLoading: isTokenLoading
+  } = useRisyToken();
 
   // Get token balances and limits
   const {
@@ -29,45 +38,50 @@ export function TokenProvider({ children }: ProviderProps) {
   } = useTokenLimits();
 
   // Set up transfer functionality
-  const transferHook: TokenTransferHookResult = useTokenTransfer({
+  const transferHook = useTokenTransfer({
     senderBalance: balance,
     timedTransferLimit,
     isWhitelisted,
   });
 
-  // Transform transfer state to match TokenContextValue
-  const transfer: TokenContextValue['transfer'] = {
-    state: {
-      recipient: transferHook.recipient,
-      amount: transferHook.amount,
-      error: transferHook.error,
-      isSubmitting: transferHook.isSubmitting,
-      recipientBalance: transferHook.recipientBalance,
-      recipientRemainingHodl: transferHook.recipientRemainingHodl,
-      isValidAddress: transferHook.isValidAddress,
-      isRecipientLoading: transferHook.isRecipientLoading,
-      isBurnAddress: transferHook.isBurnAddress,
-      isDAOAddress: transferHook.isDAOAddress,
-    },
-    setRecipient: transferHook.setRecipient,
-    setAmount: transferHook.setAmount,
-    handleTransfer: transferHook.handleTransfer,
-  };
-
   const value: TokenContextValue = {
-    // Token state
+    // Token metadata
+    config,
+    totalSupply,
+    decimals,
+    isTokenLoading,
+
+    // Balance and limits
     balance,
-    timedTransferLimit,
     maxBalance,
     remainingHodlLimit,
+    timedTransferLimit,
     globalTransferLimit,
-    isBalanceLoading,
-    isTransferLimitLoading,
-    isMaxBalanceLoading,
     resetTime,
 
+    // Loading states
+    isBalanceLoading,
+    isMaxBalanceLoading,
+    isTransferLimitLoading,
+
     // Transfer functionality
-    transfer,
+    transfer: {
+      state: {
+        recipient: transferHook.recipient,
+        amount: transferHook.amount,
+        error: transferHook.error,
+        isSubmitting: transferHook.isSubmitting,
+        recipientBalance: transferHook.recipientBalance,
+        recipientRemainingHodl: transferHook.recipientRemainingHodl,
+        isValidAddress: transferHook.isValidAddress,
+        isRecipientLoading: transferHook.isRecipientLoading,
+        isBurnAddress: transferHook.isBurnAddress,
+        isDAOAddress: transferHook.isDAOAddress,
+      },
+      setRecipient: transferHook.setRecipient,
+      setAmount: transferHook.setAmount,
+      handleTransfer: transferHook.handleTransfer,
+    },
   };
 
   return (

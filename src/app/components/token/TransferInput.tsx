@@ -1,20 +1,15 @@
 import { Input } from "../shared/Input";
-import { StatusBadge } from "../shared/StatusBadge";
-import { type TransferInputProps } from "../../types/transfer";
+import { useToken } from "../../contexts/TokenContext";
 import { ErrorBoundary } from "../shared/ErrorBoundary";
+import { type TransferInputProps } from "../../types/transfer";
 
 function TransferInputContent({
   type,
   value,
   onChange,
   error,
-  balance,
-  hodlLimit,
-  isValidAddress,
-  walletAddress
 }: TransferInputProps) {
-  // Convert error to string | undefined for the Input component
-  const inputError = error ? error : undefined;
+  const { transfer: { state } } = useToken();
 
   if (type === "recipient") {
     return (
@@ -22,13 +17,13 @@ function TransferInputContent({
         label="Recipient Address"
         value={value}
         onChange={(e) => onChange(e.target.value)}
-        error={inputError}
+        error={error || undefined}
         placeholder="0x..."
         rightElement={
           <button
             type="button"
             onClick={() => navigator.clipboard.readText().then(text => onChange(text))}
-            className="text-[#9CA3AF] hover:text-white transition-colors"
+            className="text-text-muted hover:text-text transition-colors"
           >
             <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} 
@@ -37,9 +32,9 @@ function TransferInputContent({
             </svg>
           </button>
         }
-        helperText={value && walletAddress && isValidAddress ? `
-          Balance: ${Number(balance).toFixed(2)} RISY
-          HODL Limit Available: ${Number(hodlLimit).toFixed(2)} RISY
+        helperText={value && state.isValidAddress ? `
+          Balance: ${state.recipientBalance} RISY
+          HODL Limit Available: ${state.recipientRemainingHodl} RISY
         ` : undefined}
       />
     );
@@ -50,9 +45,9 @@ function TransferInputContent({
       label="Amount"
       value={value}
       onChange={(e) => onChange(e.target.value)}
-      error={inputError}
+      error={error || undefined}
       placeholder="0.0"
-      rightElement={<span className="text-[#9CA3AF]">RISY</span>}
+      rightElement={<span className="text-text-muted">RISY</span>}
     />
   );
 }

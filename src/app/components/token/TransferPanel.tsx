@@ -7,12 +7,9 @@ import { useToken } from "../../contexts/TokenContext";
 import { useWallet } from "../../contexts/WalletContext";
 import { ErrorFallback } from "../shared/ErrorFallback";
 
-interface TransferPanelProps {
-  walletAddress?: string;
-}
-
-function TransferPanelContent({ walletAddress }: TransferPanelProps) {
+function TransferPanelContent() {
   const { transfer } = useToken();
+  const { walletAddress } = useWallet();
   const { state, setRecipient, setAmount, handleTransfer } = transfer;
 
   // Determine if we should show wallet connection error
@@ -28,14 +25,6 @@ function TransferPanelContent({ walletAddress }: TransferPanelProps) {
 
   const errorType = getErrorType();
 
-  // Convert error to string or undefined for the Input component
-  const getInputError = (type: 'recipient' | 'amount'): string | undefined => {
-    if (errorType === type && state.error) {
-      return state.error;
-    }
-    return undefined;
-  };
-
   return (
     <form onSubmit={(e) => { e.preventDefault(); handleTransfer(); }} className="space-y-6">
       <div className="space-y-4">
@@ -43,18 +32,14 @@ function TransferPanelContent({ walletAddress }: TransferPanelProps) {
           type="recipient"
           value={state.recipient}
           onChange={setRecipient}
-          error={getInputError('recipient')}
-          balance={state.recipientBalance}
-          hodlLimit={Number(state.recipientRemainingHodl)}
-          isValidAddress={state.isValidAddress}
-          walletAddress={walletAddress}
+          error={errorType === "recipient" ? state.error : undefined}
         />
 
         <TransferInput
           type="amount"
           value={state.amount}
           onChange={setAmount}
-          error={getInputError('amount')}
+          error={errorType === "amount" ? state.error : undefined}
         />
       </div>
 
@@ -76,13 +61,13 @@ function TransferPanelContent({ walletAddress }: TransferPanelProps) {
   );
 }
 
-export function TransferPanel({ walletAddress }: TransferPanelProps) {
+export function TransferPanel() {
   const { transfer: { state } } = useToken();
 
   return (
     <Card title={state.isBurnAddress ? 'Burn Tokens' : state.isDAOAddress ? 'Transfer to DAO' : 'Transfer Tokens'}>
       <ErrorBoundary title="Failed to load transfer panel">
-        <TransferPanelContent walletAddress={walletAddress} />
+        <TransferPanelContent />
       </ErrorBoundary>
     </Card>
   );

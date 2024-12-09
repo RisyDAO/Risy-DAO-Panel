@@ -99,12 +99,8 @@ export function useTokenTransfer({
     // HODL limit validation
     if (state.recipient && !isBurnAddress(state.recipient) && !isDAOAddress(state.recipient, RISY_DAO) && state.amount) {
       if (!isNaN(numAmount) && numAmount > 0) {
-        const effectiveHodlLimit = numRecipientHodl === 0 && maxBalance 
-          ? Number(formatBalance(maxBalance, RISY_TOKEN_CONFIG.decimals))
-          : numRecipientHodl;
-          
-        if (numAmount > effectiveHodlLimit) {
-          dispatch({ type: "SET_ERROR", payload: `Exceeds recipient's HODL limit (max: ${effectiveHodlLimit.toFixed(2)} RISY)` });
+        if (numAmount > numRecipientHodl) {
+          dispatch({ type: "SET_ERROR", payload: `Exceeds recipient's HODL limit (max: ${numRecipientHodl.toFixed(2)} RISY)` });
           return;
         }
       }

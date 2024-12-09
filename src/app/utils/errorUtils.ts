@@ -43,8 +43,8 @@ export function handleError(error: unknown): WalletError {
   }
 
   return {
-    code: 500,
-    message: 'An unexpected error occurred',
+    code: (error as AppError).code || 500,
+    message: (error as AppError).message || 'An unexpected error occurred',
   };
 }
 

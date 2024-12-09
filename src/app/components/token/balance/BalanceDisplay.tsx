@@ -13,12 +13,9 @@ function BalanceDisplayContent({ balance, isLoading }: BalanceDisplayProps) {
   }
 
   return (
-    <div>
-      <h3 className="text-2xl font-bold mb-2">
-        {Number(balance).toLocaleString()} RISY
-      </h3>
-      <p className="text-[#9CA3AF]">Current Balance</p>
-    </div>
+    <h3 className="text-2xl font-bold mb-2">
+      {Number(balance).toLocaleString()} RISY
+    </h3>
   );
 }
 

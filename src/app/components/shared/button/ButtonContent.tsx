@@ -19,8 +19,7 @@ export function ButtonContent({ isLoading, icon, children }: ButtonContentProps)
 
   return (
     <div className="flex items-center space-x-2">
-      {icon && <span>{icon}</span>}
-      <span>{children}</span>
+      {children}
     </div>
   );
 } 

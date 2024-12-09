@@ -68,7 +68,7 @@ export function useTokenTransfer({
   const recipientRemainingHodl = maxBalance && recipientBalance !== undefined
     ? Number(recipientBalance) === 0
       ? Number(formattedMaxBalance)
-      : Math.max(0, Number((Math.max(0, Number(formattedMaxBalance) - Number(formattedRecipientBalance))).toFixed(2)) - 0.01)
+      : Number((Math.max(0, Number(formattedMaxBalance) - Number(formattedRecipientBalance) - 0.01)).toFixed(2))
     : 0;
 
   // Update recipient hodl limit in state when it changes

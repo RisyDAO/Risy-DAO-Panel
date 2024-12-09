@@ -1,13 +1,11 @@
-import { type InputHTMLAttributes, type ReactNode } from "react";
+import { ErrorBoundary } from "./ErrorBoundary";
+import { StatusBadge } from "./StatusBadge";
+import { InputLabel } from "./input/InputLabel";
+import { InputField } from "./input/InputField";
+import { InputMessage } from "./input/InputMessage";
+import { type InputProps } from "../../types/shared";
 
-interface InputProps extends InputHTMLAttributes<HTMLInputElement> {
-  label?: string;
-  error?: string | null;
-  rightElement?: ReactNode;
-  helperText?: string;
-}
-
-export function Input({
+function InputComponent({
   label,
   error,
   rightElement,
@@ -17,36 +15,44 @@ export function Input({
 }: InputProps) {
   return (
     <div className="p-4 rounded-lg bg-[#111827] bg-opacity-50">
-      {label && (
-        <label className="block text-sm text-[#9CA3AF] font-medium mb-2">
-          {label}
-        </label>
-      )}
+      <InputLabel label={label} />
       <div className="relative">
-        <input
-          className={`
-            w-full bg-[#1F2937] border rounded-md px-4 py-2.5 text-white 
-            placeholder-[#4B5563] transition-all duration-200
-            ${error 
-              ? 'border-red-500 focus:ring-red-500' 
-              : 'border-[#374151] focus:ring-[#6366F1]'
-            } 
-            focus:border-transparent focus:ring-2
-            ${className}
-          `}
-          {...props}
-        />
+        <InputField error={error} className={className} {...props} />
         {rightElement && (
           <div className="absolute inset-y-0 right-0 flex items-center pr-3">
             {rightElement}
           </div>
         )}
       </div>
-      {(error || helperText) && (
-        <p className={`mt-2 text-xs ${error ? 'text-red-500' : 'text-[#9CA3AF]'}`}>
-          {error || helperText}
-        </p>
-      )}
+      <InputMessage error={error} helperText={helperText} />
     </div>
+  );
+}
+
+export function Input(props: InputProps) {
+  return (
+    <ErrorBoundary
+      fallback={
+        <StatusBadge
+          variant="error"
+          icon={
+            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} 
+                d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" 
+              />
+            </svg>
+          }
+        >
+          <div>
+            <h3 className="font-semibold text-inherit">Failed to load input</h3>
+            <p className="text-sm opacity-90">
+              Please try refreshing the page
+            </p>
+          </div>
+        </StatusBadge>
+      }
+    >
+      <InputComponent {...props} />
+    </ErrorBoundary>
   );
 } 

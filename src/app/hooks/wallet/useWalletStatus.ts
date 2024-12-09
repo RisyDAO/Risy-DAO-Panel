@@ -1,41 +1,79 @@
 import { useActiveWallet } from "thirdweb/react";
 import { useEffect, useState } from "react";
 import { ContractFactory } from "../../contracts/factory";
+import { type WalletState } from "../../types/wallet";
+import { type AsyncState } from "../../types/common";
+
+interface WalletStatusState extends AsyncState<WalletState> {
+  data: WalletState;
+}
 
 export function useWalletStatus() {
-  const [isWhitelisted, setIsWhitelisted] = useState(false);
-  const [isWhitelistLoading, setIsWhitelistLoading] = useState(true);
+  const [state, setState] = useState<WalletStatusState>({
+    isLoading: true,
+    data: {
+      isWhitelisted: false,
+      isConnected: false,
+      chainId: 0,
+      address: "",
+    }
+  });
 
   const wallet = useActiveWallet();
-  const walletAddress = wallet?.getAccount()?.address;
+  const account = wallet?.getAccount();
+  const walletAddress = account?.address;
+  const network = wallet?.getChain();
 
   useEffect(() => {
-    const checkWhitelistStatus = async () => {
+    const checkWalletStatus = async () => {
       if (!walletAddress) {
-        setIsWhitelisted(false);
-        setIsWhitelistLoading(false);
+        setState({
+          isLoading: false,
+          data: {
+            isWhitelisted: false,
+            isConnected: false,
+            chainId: 0,
+            address: "",
+          }
+        });
         return;
       }
 
       try {
-        setIsWhitelistLoading(true);
+        setState(prev => ({ ...prev, isLoading: true }));
         const tokenReader = ContractFactory.getTokenReader();
         const whitelistStatus = await tokenReader.isWhitelisted(walletAddress);
-        setIsWhitelisted(whitelistStatus);
+
+        setState({
+          isLoading: false,
+          data: {
+            isWhitelisted: whitelistStatus,
+            isConnected: true,
+            chainId: network?.id || 0,
+            address: walletAddress,
+          }
+        });
       } catch (error) {
         console.error("Error checking whitelist status:", error);
-        setIsWhitelisted(false);
-      } finally {
-        setIsWhitelistLoading(false);
+        setState(prev => ({ 
+          ...prev, 
+          isLoading: false,
+          data: {
+            ...prev.data,
+            isWhitelisted: false,
+          }
+        }));
       }
     };
 
-    checkWhitelistStatus();
-  }, [walletAddress]);
+    checkWalletStatus();
+  }, [walletAddress, account, network]);
 
   return {
-    isWhitelisted,
-    isWhitelistLoading,
-    walletAddress,
+    isWhitelisted: state.data.isWhitelisted,
+    isWhitelistLoading: state.isLoading,
+    walletAddress: state.data.address,
+    isConnected: state.data.isConnected,
+    chainId: state.data.chainId,
   };
 } 

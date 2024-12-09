@@ -3,11 +3,12 @@ import { RISY_TOKEN_CONFIG } from "../../config/tokens";
 import { formatBalance } from "../../utils/formatUtils";
 import { NULL_ADDRESS } from "../../utils/addressUtils";
 import { readContract } from "thirdweb";
+import { type TokenBalance, type TokenLimits } from "../../types/token";
 
 export class TokenReader implements ContractReader<typeof import("../../client").risyTokenContract> {
   constructor(public contract: typeof import("../../client").risyTokenContract) {}
 
-  async getBalance(address: string = NULL_ADDRESS) {
+  async getBalance(address: string = NULL_ADDRESS): Promise<TokenBalance> {
     const balance = await readContract({
       contract: this.contract,
       method: "function balanceOf(address account) view returns (uint256)",
@@ -20,7 +21,23 @@ export class TokenReader implements ContractReader<typeof import("../../client")
     };
   }
 
-  async getTransferLimitDetails(address: string = NULL_ADDRESS) {
+  async getTotalSupply(): Promise<bigint> {
+    return readContract({
+      contract: this.contract,
+      method: "function totalSupply() view returns (uint256)",
+      params: []
+    });
+  }
+
+  async getDecimals(): Promise<number> {
+    return readContract({
+      contract: this.contract,
+      method: "function decimals() view returns (uint8)",
+      params: []
+    });
+  }
+
+  async getTransferLimitDetails(address: string = NULL_ADDRESS): Promise<TokenLimits> {
     const [transferable, percentTransferable] = await readContract({
       contract: this.contract,
       method: "function getTransferLimitDetails(address account) view returns (uint256 transferable, uint256 percentTransferable)",
@@ -28,9 +45,10 @@ export class TokenReader implements ContractReader<typeof import("../../client")
     });
     
     return {
-      transferable,
+      transferLimit: transferable,
       percentTransferable,
-      formattedTransferable: formatBalance(transferable, RISY_TOKEN_CONFIG.decimals)
+      maxBalance: 0n, // Will be set by separate call
+      timeWindow: 86400n // Default 1 day in seconds
     };
   }
 

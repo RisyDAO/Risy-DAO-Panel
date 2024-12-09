@@ -1,10 +1,12 @@
 "use client";
 
+import { ErrorBoundary } from "./components/shared/ErrorBoundary";
 import { Layout } from "./components/layout/Layout";
 import { TokenBalance } from "./components/token/TokenBalance";
 import { TransferPanel } from "./components/token/TransferPanel";
-import { useRisyToken } from "./hooks/token/useRisyToken";
 import { StatusBadge } from "./components/shared/StatusBadge";
+import { useToken } from "./contexts/TokenContext";
+import { useWallet } from "./contexts/WalletContext";
 
 function DashboardHeader() {
   return (
@@ -21,11 +23,10 @@ function DashboardHeader() {
   );
 }
 
-function WhitelistBanner({ isWhitelisted, isWhitelistLoading, walletAddress }: { 
-  isWhitelisted: boolean;
-  isWhitelistLoading: boolean;
-  walletAddress?: string;
-}) {
+function WhitelistBanner() {
+  const { isWhitelisted, isWhitelistLoading } = useWallet();
+  const { walletAddress } = useWallet();
+
   if (!walletAddress || isWhitelistLoading || !isWhitelisted) return null;
 
   return (
@@ -51,70 +52,53 @@ function WhitelistBanner({ isWhitelisted, isWhitelistLoading, walletAddress }: {
   );
 }
 
-function DashboardGrid() {
-  const {
-    balance,
-    timedTransferLimit,
-    maxBalance,
-    remainingHodlLimit,
-    globalTransferLimit,
-    isBalanceLoading,
-    isTransferLimitLoading,
-    isMaxBalanceLoading,
-    isWhitelisted,
-    isWhitelistLoading,
-    resetTime,
-    walletAddress,
-    transfer
-  } = useRisyToken();
-
+function DashboardContent() {
+  const { walletAddress } = useWallet();
+  
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-      <TokenBalance
-        balance={balance}
-        timedTransferLimit={timedTransferLimit}
-        maxBalance={maxBalance}
-        remainingHodlLimit={remainingHodlLimit}
-        globalTransferLimit={globalTransferLimit}
-        isBalanceLoading={isBalanceLoading}
-        isTransferLimitLoading={isTransferLimitLoading}
-        isMaxBalanceLoading={isMaxBalanceLoading}
-        isWhitelisted={isWhitelisted || false}
-        resetTime={resetTime}
-        walletAddress={walletAddress}
-      />
-      <TransferPanel
-        recipient={transfer.recipient}
-        setRecipient={transfer.setRecipient}
-        amount={transfer.amount}
-        setAmount={transfer.setAmount}
-        error={transfer.error}
-        isSubmitting={transfer.isSubmitting}
-        handleTransfer={transfer.handleTransfer}
-        recipientBalance={transfer.recipientBalance}
-        recipientRemainingHodl={Number(transfer.recipientRemainingHodl)}
-        isValidAddress={transfer.isValidAddress}
-        isRecipientLoading={transfer.isRecipientLoading}
-        isBurnAddress={transfer.isBurnAddress}
-        isDAOAddress={transfer.isDAOAddress}
-        walletAddress={walletAddress}
-      />
+      <TokenBalance />
+      <TransferPanel walletAddress={walletAddress} />
     </div>
   );
 }
 
-export default function Home() {
-  const { isWhitelisted, isWhitelistLoading, walletAddress } = useRisyToken();
-
+function PageContent() {
   return (
     <Layout>
       <DashboardHeader />
-      <WhitelistBanner 
-        isWhitelisted={isWhitelisted || false}
-        isWhitelistLoading={isWhitelistLoading}
-        walletAddress={walletAddress}
-      />
-      <DashboardGrid />
+      <WhitelistBanner />
+      <DashboardContent />
     </Layout>
+  );
+}
+
+export default function Home() {
+  return (
+    <ErrorBoundary
+      fallback={
+        <div className="min-h-screen bg-[#111827] text-white p-4">
+          <StatusBadge
+            variant="error"
+            icon={
+              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} 
+                  d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" 
+                />
+              </svg>
+            }
+          >
+            <div>
+              <h3 className="font-semibold text-inherit">Failed to load application</h3>
+              <p className="text-sm opacity-90">
+                Please try refreshing the page
+              </p>
+            </div>
+          </StatusBadge>
+        </div>
+      }
+    >
+      <PageContent />
+    </ErrorBoundary>
   );
 }

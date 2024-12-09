@@ -1,68 +1,65 @@
-import { useTokenBalance } from "./useTokenBalance";
-import { useTokenLimits } from "./useTokenLimits";
-import { useWalletStatus } from "../wallet/useWalletStatus";
-import { useTokenTransfer } from "./useTokenTransfer";
+import { useActiveWallet } from "thirdweb/react";
+import { useEffect, useState } from "react";
+import { ContractFactory } from "../../contracts/factory";
+import { type TokenConfig } from "../../types/token";
+import { type AsyncState } from "../../types/common";
+import { RISY_TOKEN_CONFIG } from "../../config/tokens";
+
+interface TokenMetadata {
+  config: TokenConfig;
+  totalSupply: string;
+  decimals: number;
+}
+
+interface RisyTokenState extends AsyncState<TokenMetadata> {
+  data: TokenMetadata;
+}
 
 export function useRisyToken() {
-  const {
-    balance,
-    maxBalance,
-    remainingHodlLimit,
-    isBalanceLoading,
-    isMaxBalanceLoading,
-    walletAddress,
-  } = useTokenBalance();
-
-  const {
-    timedTransferLimit,
-    globalTransferLimit,
-    isTransferLimitLoading,
-    resetTime,
-  } = useTokenLimits();
-
-  const {
-    isWhitelisted,
-    isWhitelistLoading,
-  } = useWalletStatus();
-
-  const transfer = useTokenTransfer({
-    senderBalance: balance,
-    timedTransferLimit,
-    isWhitelisted: isWhitelisted || false,
+  const [state, setState] = useState<RisyTokenState>({
+    isLoading: true,
+    data: {
+      config: RISY_TOKEN_CONFIG,
+      totalSupply: "0",
+      decimals: RISY_TOKEN_CONFIG.decimals,
+    }
   });
 
-  console.log('useRisyToken state:', {
-    balance,
-    maxBalance,
-    remainingHodlLimit,
-    timedTransferLimit,
-    globalTransferLimit,
-    isWhitelisted,
-    walletAddress
-  });
+  const wallet = useActiveWallet();
+  const account = wallet?.getAccount();
+
+  useEffect(() => {
+    const fetchTokenInfo = async () => {
+      try {
+        setState(prev => ({ ...prev, isLoading: true }));
+        const tokenReader = ContractFactory.getTokenReader();
+
+        const [totalSupply, decimals] = await Promise.all([
+          tokenReader.getTotalSupply(),
+          tokenReader.getDecimals(),
+        ]);
+
+        setState({
+          isLoading: false,
+          data: {
+            config: RISY_TOKEN_CONFIG,
+            totalSupply: totalSupply.toString(),
+            decimals,
+          }
+        });
+      } catch (error) {
+        console.error("Error fetching token info:", error);
+        setState(prev => ({ ...prev, isLoading: false }));
+      }
+    };
+
+    fetchTokenInfo();
+  }, [account]);
 
   return {
-    // Balance and limits
-    balance,
-    maxBalance,
-    remainingHodlLimit,
-    timedTransferLimit,
-    globalTransferLimit,
-    
-    // Loading states
-    isBalanceLoading,
-    isMaxBalanceLoading,
-    isTransferLimitLoading,
-    isWhitelistLoading,
-    
-    // Wallet status
-    isWhitelisted,
-    walletAddress,
-    
-    // Time tracking
-    resetTime,
-    
-    // Transfer functionality
-    transfer,
+    config: state.data.config,
+    totalSupply: state.data.totalSupply,
+    decimals: state.data.decimals,
+    isLoading: state.isLoading,
   };
 } 

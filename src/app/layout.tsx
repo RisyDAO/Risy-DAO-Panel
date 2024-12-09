@@ -2,7 +2,9 @@ import type { Metadata } from "next";
 import { Poppins } from "next/font/google";
 import "./globals.css";
 import { ThirdwebProvider } from "thirdweb/react";
-import { WalletProvider } from "./components/WalletProvider";
+import { WalletProvider } from "./contexts/WalletContext";
+import { TokenProvider } from "./contexts/TokenContext";
+import { ThemeProvider } from "./contexts/ThemeContext";
 
 const poppins = Poppins({ 
   subsets: ["latin"],
@@ -35,9 +37,13 @@ export default function RootLayout({
       </head>
       <body className={`${poppins.variable} font-poppins antialiased`} suppressHydrationWarning={true}>
         <ThirdwebProvider>
-          <WalletProvider>
-            {children}
-          </WalletProvider>
+          <ThemeProvider>
+            <WalletProvider>
+              <TokenProvider>
+                {children}
+              </TokenProvider>
+            </WalletProvider>
+          </ThemeProvider>
         </ThirdwebProvider>
       </body>
     </html>

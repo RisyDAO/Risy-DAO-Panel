@@ -1,13 +1,10 @@
-import { type ButtonHTMLAttributes, type ReactNode } from "react";
+import { ErrorBoundary } from "./ErrorBoundary";
+import { StatusBadge } from "./StatusBadge";
+import { ButtonContent } from "./button/ButtonContent";
+import { getButtonStyles } from "./button/ButtonStyles";
+import { type ButtonBaseProps } from "../../types/shared";
 
-interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
-  variant?: 'primary' | 'secondary';
-  isLoading?: boolean;
-  icon?: ReactNode;
-  children: ReactNode;
-}
-
-export function Button({ 
+function ButtonComponent({ 
   variant = 'primary', 
   isLoading = false, 
   icon,
@@ -15,35 +12,44 @@ export function Button({
   disabled,
   className = '',
   ...props 
-}: ButtonProps) {
-  const baseStyles = "w-full py-3 px-4 rounded-md font-medium transition-all duration-200";
-  
-  const variants = {
-    primary: `${!disabled 
-      ? 'bg-gradient-to-r from-[#6366F1] via-[#3B82F6] to-[#2DD4BF] text-white hover:shadow-lg hover:opacity-90'
-      : 'bg-[#374151] text-[#9CA3AF] cursor-not-allowed'
-    }`,
-    secondary: `${!disabled
-      ? 'bg-[#1F2937] text-white hover:bg-[#374151]'
-      : 'bg-[#1F2937] text-[#9CA3AF] cursor-not-allowed'
-    }`
-  };
-
+}: ButtonBaseProps) {
   return (
     <button
       disabled={disabled || isLoading}
-      className={`${baseStyles} ${variants[variant]} ${className}`}
+      className={`${getButtonStyles(variant, disabled || isLoading)} ${className}`}
       {...props}
     >
-      <div className="flex items-center justify-center space-x-2">
-        {isLoading ? (
-          <svg className="animate-spin h-5 w-5" viewBox="0 0 24 24">
-            <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none" />
-            <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
-          </svg>
-        ) : icon}
-        <span>{children}</span>
-      </div>
+      <ButtonContent isLoading={isLoading} icon={icon}>
+        {children}
+      </ButtonContent>
     </button>
+  );
+}
+
+export function Button(props: ButtonBaseProps) {
+  return (
+    <ErrorBoundary
+      fallback={
+        <StatusBadge
+          variant="error"
+          icon={
+            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} 
+                d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" 
+              />
+            </svg>
+          }
+        >
+          <div>
+            <h3 className="font-semibold text-inherit">Failed to load button</h3>
+            <p className="text-sm opacity-90">
+              Please try refreshing the page
+            </p>
+          </div>
+        </StatusBadge>
+      }
+    >
+      <ButtonComponent {...props} />
+    </ErrorBoundary>
   );
 } 

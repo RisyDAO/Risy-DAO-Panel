@@ -1,29 +1,20 @@
+import { ErrorBoundary } from "../shared/ErrorBoundary";
 import { Button } from "../shared/Button";
-import { type TransferButtonProps } from "../../types/transfer";
+import { StatusBadge } from "../shared/StatusBadge";
+import { useToken } from "../../contexts/TokenContext";
 
-export function TransferButton({
-  recipient,
-  amount,
-  error,
-  isSubmitting,
-  walletAddress,
-  isBurnAddress,
-  isValidAddress
-}: TransferButtonProps) {
+function TransferButtonContent() {
+  const { transfer: { state } } = useToken();
+  const { 
+    recipient, 
+    amount, 
+    error, 
+    isSubmitting, 
+    isBurnAddress, 
+    isValidAddress 
+  } = state;
+
   const getButtonContent = () => {
-    if (!walletAddress) {
-      return {
-        icon: (
-          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} 
-              d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" 
-            />
-          </svg>
-        ),
-        text: "Connect Wallet"
-      };
-    }
-
     if (!recipient) {
       return {
         icon: (
@@ -50,7 +41,31 @@ export function TransferButton({
       };
     }
 
-    // ... rest of the button content logic ...
+    if (!amount) {
+      return {
+        icon: (
+          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} 
+              d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" 
+            />
+          </svg>
+        ),
+        text: "Enter Amount"
+      };
+    }
+
+    if (error) {
+      return {
+        icon: (
+          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} 
+              d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" 
+            />
+          </svg>
+        ),
+        text: "Cannot Transfer"
+      };
+    }
 
     return {
       icon: (
@@ -67,11 +82,40 @@ export function TransferButton({
   return (
     <Button
       type="submit"
-      disabled={isSubmitting || !amount || !recipient || !!error || !walletAddress}
+      disabled={isSubmitting || !amount || !recipient || !!error}
       isLoading={isSubmitting}
+      variant={error ? 'secondary' : 'primary'}
     >
       {content.icon}
       <span>{content.text}</span>
     </Button>
+  );
+}
+
+export function TransferButton() {
+  return (
+    <ErrorBoundary
+      fallback={
+        <StatusBadge
+          variant="error"
+          icon={
+            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} 
+                d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" 
+              />
+            </svg>
+          }
+        >
+          <div>
+            <h3 className="font-semibold text-inherit">Failed to load transfer button</h3>
+            <p className="text-sm opacity-90">
+              Please try refreshing the page
+            </p>
+          </div>
+        </StatusBadge>
+      }
+    >
+      <TransferButtonContent />
+    </ErrorBoundary>
   );
 } 

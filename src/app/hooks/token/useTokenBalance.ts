@@ -1,13 +1,28 @@
 import { useActiveWallet } from "thirdweb/react";
 import { useEffect, useState } from "react";
 import { ContractFactory } from "../../contracts/factory";
+import { type TokenBalance } from "../../types/token";
+import { type AsyncState } from "../../types/common";
+
+interface TokenBalanceData {
+  balance: string;
+  maxBalance: string;
+  remainingHodlLimit: string;
+}
+
+interface TokenBalanceState extends AsyncState<TokenBalanceData> {
+  data: TokenBalanceData;
+}
 
 export function useTokenBalance() {
-  const [balance, setBalance] = useState("0");
-  const [maxBalance, setMaxBalance] = useState("0");
-  const [remainingHodlLimit, setRemainingHodlLimit] = useState("0");
-  const [isBalanceLoading, setIsBalanceLoading] = useState(true);
-  const [isMaxBalanceLoading, setIsMaxBalanceLoading] = useState(true);
+  const [state, setState] = useState<TokenBalanceState>({
+    isLoading: true,
+    data: {
+      balance: "0",
+      maxBalance: "0",
+      remainingHodlLimit: "0",
+    }
+  });
 
   const wallet = useActiveWallet();
   const walletAddress = wallet?.getAccount()?.address;
@@ -15,18 +30,19 @@ export function useTokenBalance() {
   useEffect(() => {
     const fetchBalances = async () => {
       if (!walletAddress) {
-        setBalance("0");
-        setMaxBalance("0");
-        setRemainingHodlLimit("0");
-        setIsBalanceLoading(false);
-        setIsMaxBalanceLoading(false);
+        setState({
+          isLoading: false,
+          data: {
+            balance: "0",
+            maxBalance: "0",
+            remainingHodlLimit: "0",
+          }
+        });
         return;
       }
 
       try {
-        setIsBalanceLoading(true);
-        setIsMaxBalanceLoading(true);
-
+        setState(prev => ({ ...prev, isLoading: true }));
         const tokenReader = ContractFactory.getTokenReader();
         
         // Get balance and max balance in parallel
@@ -35,19 +51,21 @@ export function useTokenBalance() {
           tokenReader.getMaxBalance()
         ]);
 
-        setBalance(balanceResult.formattedBalance);
-        setMaxBalance(maxBalanceResult.formattedMaxBalance);
-
         // Calculate remaining HODL limit
         const rawHodlLimit = Number(maxBalanceResult.formattedMaxBalance) - Number(balanceResult.formattedBalance);
-        setRemainingHodlLimit(Math.max(0, rawHodlLimit).toFixed(2));
+        const remainingHodlLimit = Math.max(0, rawHodlLimit).toFixed(2);
 
+        setState({
+          isLoading: false,
+          data: {
+            balance: balanceResult.formattedBalance,
+            maxBalance: maxBalanceResult.formattedMaxBalance,
+            remainingHodlLimit,
+          }
+        });
       } catch (error) {
         console.error("Error fetching balances:", error);
-        // Keep previous values on error
-      } finally {
-        setIsBalanceLoading(false);
-        setIsMaxBalanceLoading(false);
+        setState(prev => ({ ...prev, isLoading: false }));
       }
     };
 
@@ -55,11 +73,11 @@ export function useTokenBalance() {
   }, [walletAddress]);
 
   return {
-    balance,
-    maxBalance,
-    remainingHodlLimit,
-    isBalanceLoading,
-    isMaxBalanceLoading,
+    balance: state.data.balance,
+    maxBalance: state.data.maxBalance,
+    remainingHodlLimit: state.data.remainingHodlLimit,
+    isBalanceLoading: state.isLoading,
+    isMaxBalanceLoading: state.isLoading,
     walletAddress,
   };
 } 

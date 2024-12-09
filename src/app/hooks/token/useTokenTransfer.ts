@@ -11,6 +11,10 @@ import {
 } from "../../utils/addressUtils";
 import { formatBalance } from "../../utils/formatUtils";
 import { ContractFactory } from "../../contracts/factory";
+import { type TokenTransferParams, type TokenTransferOptions } from "../../types/token";
+import { type AsyncState } from "../../types/common";
+import { type TokenTransferHookResult } from "../../types/context";
+import { handleError, TransactionError, isUserRejectedError } from "../../utils/errorUtils";
 
 interface TokenTransferProps {
   senderBalance: string;
@@ -18,7 +22,11 @@ interface TokenTransferProps {
   isWhitelisted: boolean;
 }
 
-export function useTokenTransfer({ senderBalance, timedTransferLimit, isWhitelisted }: TokenTransferProps) {
+export function useTokenTransfer({ 
+  senderBalance, 
+  timedTransferLimit, 
+  isWhitelisted 
+}: TokenTransferProps): TokenTransferHookResult {
   const [recipient, setRecipient] = useState("");
   const [amount, setAmount] = useState("");
   const [error, setError] = useState<string | null>(null);
@@ -26,6 +34,15 @@ export function useTokenTransfer({ senderBalance, timedTransferLimit, isWhitelis
 
   const wallet = useActiveWallet();
   const account = wallet?.getAccount();
+
+  // Use AsyncState for loading states
+  const [recipientState, setRecipientState] = useState<AsyncState<{
+    balance: string;
+    remainingHodl: number;
+  }>>({
+    isLoading: false,
+    data: { balance: "0", remainingHodl: 0 }
+  });
 
   // Get recipient's balance and hodl limit (skip for burn address)
   const { data: recipientBalance, isLoading: isRecipientLoading } = useReadContract({
@@ -129,7 +146,9 @@ export function useTokenTransfer({ senderBalance, timedTransferLimit, isWhitelis
   }, [recipient, recipientRemainingHodl, timedTransferLimit, senderBalance, isWhitelisted]);
 
   const handleTransfer = async () => {
-    if (error || !amount || !isValidEthereumAddress(recipient) || !account) return;
+    if (error || !amount || !isValidEthereumAddress(recipient) || !account) {
+      throw new TransactionError("Invalid transfer parameters");
+    }
 
     try {
       setIsSubmitting(true);
@@ -141,7 +160,13 @@ export function useTokenTransfer({ senderBalance, timedTransferLimit, isWhitelis
         await tokenWriter.transfer(recipient, amount);
       }
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Transaction failed");
+      if (isUserRejectedError(err)) {
+        setError("Transaction was rejected by user");
+      } else {
+        const walletError = handleError(err);
+        setError(walletError.message);
+      }
+      throw err;
     } finally {
       setIsSubmitting(false);
     }
@@ -149,17 +174,17 @@ export function useTokenTransfer({ senderBalance, timedTransferLimit, isWhitelis
 
   return {
     recipient,
-    setRecipient,
     amount,
-    setAmount,
     error,
     isSubmitting,
-    handleTransfer,
     recipientBalance: formattedRecipientBalance,
     recipientRemainingHodl,
     isValidAddress: isValidEthereumAddress(recipient),
     isRecipientLoading,
     isBurnAddress: recipient ? isBurnAddress(recipient) : false,
     isDAOAddress: recipient ? isDAOAddress(recipient, RISY_DAO) : false,
+    setRecipient,
+    setAmount,
+    handleTransfer,
   };
 } 

@@ -1,29 +1,47 @@
-import { type ReactNode } from "react";
+import { ErrorBoundary } from "./ErrorBoundary";
+import { BadgeContent } from "./badge/BadgeContent";
+import { getBadgeStyles } from "./badge/BadgeStyles";
+import { type StatusBadgeProps } from "../../types/shared";
 
-interface StatusBadgeProps {
-  variant?: 'success' | 'warning' | 'error' | 'info';
-  icon?: ReactNode;
-  children: ReactNode;
-}
-
-export function StatusBadge({ 
+function StatusBadgeContent({ 
   variant = 'info',
   icon,
   children 
 }: StatusBadgeProps) {
-  const variants = {
-    success: 'bg-[#34D399] bg-opacity-10 border-[#34D399] text-[#34D399]',
-    warning: 'bg-[#F59E0B] bg-opacity-10 border-[#F59E0B] text-[#F59E0B]',
-    error: 'bg-red-500 bg-opacity-10 border-red-500 text-red-500',
-    info: 'bg-[#818CF8] bg-opacity-10 border-[#818CF8] text-[#818CF8]'
-  };
-
   return (
-    <div className={`p-3 rounded-md border border-opacity-50 ${variants[variant]}`}>
-      <div className="flex items-start space-x-2">
-        {icon && <span className="mt-0.5">{icon}</span>}
-        <p className="text-sm">{children}</p>
-      </div>
+    <div className={`p-3 rounded-md border border-opacity-50 ${getBadgeStyles(variant)}`}>
+      <BadgeContent icon={icon}>
+        {children}
+      </BadgeContent>
     </div>
+  );
+}
+
+export function StatusBadge(props: StatusBadgeProps) {
+  return (
+    <ErrorBoundary
+      fallback={
+        <div className="p-3 rounded-md border border-opacity-50 bg-red-900 bg-opacity-20 border-red-500 text-red-400">
+          <BadgeContent
+            icon={
+              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} 
+                  d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" 
+                />
+              </svg>
+            }
+          >
+            <div>
+              <h3 className="font-semibold text-inherit">Failed to load status badge</h3>
+              <p className="text-sm opacity-90">
+                Please try refreshing the page
+              </p>
+            </div>
+          </BadgeContent>
+        </div>
+      }
+    >
+      <StatusBadgeContent {...props} />
+    </ErrorBoundary>
   );
 } 

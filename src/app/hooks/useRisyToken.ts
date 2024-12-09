@@ -1,19 +1,9 @@
 import { useReadContract, useActiveWallet } from "thirdweb/react";
-import { RISY_TOKEN_CONFIG } from "../constants";
+import { RISY_TOKEN_CONFIG } from "../config/tokens";
 import { risyTokenContract } from "../client";
 import { useEffect, useState } from "react";
-
-function formatBalance(value: bigint | undefined, decimals: number): string {
-  if (!value) return "0";
-  try {
-    return (Number(value) / Math.pow(10, decimals)).toLocaleString('en-US', {
-      maximumFractionDigits: 2,
-      useGrouping: false
-    });
-  } catch (e) {
-    return "0";
-  }
-}
+import { formatBalance } from "../utils/formatUtils";
+import { NULL_ADDRESS } from "../utils/addressUtils";
 
 export function useRisyToken() {
   const [resetTime, setResetTime] = useState<string>("");
@@ -24,14 +14,14 @@ export function useRisyToken() {
   const { data: balance, isLoading: isBalanceLoading } = useReadContract({
     contract: risyTokenContract,
     method: "function balanceOf(address account) view returns (uint256)",
-    params: walletAddress ? [walletAddress] : ["0x0000000000000000000000000000000000000000"]
+    params: walletAddress ? [walletAddress] : [NULL_ADDRESS]
   });
 
   // Get transfer limit details
   const { data: transferLimitDetails, isLoading: isTransferDetailsLoading } = useReadContract({
     contract: risyTokenContract,
     method: "function getTransferLimitDetails(address account) view returns (uint256 transferable, uint256 percentTransferable)",
-    params: walletAddress ? [walletAddress] : ["0x0000000000000000000000000000000000000000"]
+    params: walletAddress ? [walletAddress] : [NULL_ADDRESS]
   });
 
   // Get global transfer limit if needed
@@ -59,7 +49,7 @@ export function useRisyToken() {
   const { data: isWhitelisted, isLoading: isWhitelistLoading } = useReadContract({
     contract: risyTokenContract,
     method: "function isWhiteListed(address account) view returns (bool)",
-    params: walletAddress ? [walletAddress] : ["0x0000000000000000000000000000000000000000"]
+    params: walletAddress ? [walletAddress] : [NULL_ADDRESS]
   });
 
   // Calculate time until reset

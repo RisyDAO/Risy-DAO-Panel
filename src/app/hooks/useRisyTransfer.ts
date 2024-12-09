@@ -2,34 +2,15 @@ import { useState, useEffect } from "react";
 import { prepareContractCall } from "thirdweb";
 import { useReadContract, useSendTransaction, useActiveWallet } from "thirdweb/react";
 import { risyTokenContract } from "../client";
-import { RISY_TOKEN_CONFIG, RISY_DAO } from "../constants";
-
-// Helper function to validate Ethereum address
-function isValidEthereumAddress(address: string): boolean {
-  return /^0x[a-fA-F0-9]{40}$/.test(address);
-}
-
-function formatBalance(value: bigint | undefined, decimals: number): string {
-  if (!value) return "0";
-  try {
-    return (Number(value) / Math.pow(10, decimals)).toLocaleString('en-US', {
-      maximumFractionDigits: 2,
-      useGrouping: false
-    });
-  } catch (e) {
-    return "0";
-  }
-}
-
-const NULL_ADDRESS = "0x0000000000000000000000000000000000000000";
-
-function isBurnAddress(address: string): boolean {
-  return address.toLowerCase() === NULL_ADDRESS.toLowerCase();
-}
-
-function isDAOAddress(address: string): boolean {
-  return address.toLowerCase() === RISY_DAO.toLowerCase();
-}
+import { RISY_TOKEN_CONFIG } from "../config/tokens";
+import { RISY_DAO } from "../config/contracts";
+import { 
+  isValidEthereumAddress, 
+  isBurnAddress, 
+  isDAOAddress,
+  NULL_ADDRESS
+} from "../utils/addressUtils";
+import { formatBalance, toWei } from "../utils/formatUtils";
 
 export function useRisyTransfer(senderBalance: string, timedTransferLimit: string) {
   const [recipient, setRecipient] = useState("");
@@ -98,7 +79,7 @@ export function useRisyTransfer(senderBalance: string, timedTransferLimit: strin
       }
 
       // Skip HODL limit check for burn address and DAO
-      if (!isBurnAddress(recipient) && !isDAOAddress(recipient) && amount) {
+      if (!isBurnAddress(recipient) && !isDAOAddress(recipient, RISY_DAO) && amount) {
         if (!isNaN(numAmount) && numAmount > 0) {
           const effectiveHodlLimit = numRecipientHodl === 0 && maxBalance 
             ? Number(formatBalance(maxBalance, RISY_TOKEN_CONFIG.decimals))
@@ -125,7 +106,7 @@ export function useRisyTransfer(senderBalance: string, timedTransferLimit: strin
       }
 
       // Skip transfer limit check if recipient is DAO or sender is whitelisted
-      if (!isDAOAddress(recipient) && !isWhitelisted) {
+      if (!isDAOAddress(recipient, RISY_DAO) && !isWhitelisted) {
         if (numAmount > numTransferLimit) {
           setError(`Exceeds transfer limit (max: ${numTransferLimit.toFixed(2)} RISY)`);
           return;
@@ -141,7 +122,7 @@ export function useRisyTransfer(senderBalance: string, timedTransferLimit: strin
     if (!isValidEthereumAddress(recipient)) return;
 
     // If whitelisted or transferring to DAO, use full balance as max amount
-    if (isWhitelisted || isDAOAddress(recipient)) {
+    if (isWhitelisted || isDAOAddress(recipient, RISY_DAO)) {
       setAmount(Number(senderBalance).toFixed(2));
       return;
     }
@@ -203,6 +184,6 @@ export function useRisyTransfer(senderBalance: string, timedTransferLimit: strin
     isValidAddress: isValidEthereumAddress(recipient),
     isRecipientLoading,
     isBurnAddress: recipient ? isBurnAddress(recipient) : false,
-    isDAOAddress: recipient ? isDAOAddress(recipient) : false,
+    isDAOAddress: recipient ? isDAOAddress(recipient, RISY_DAO) : false,
   };
 } 

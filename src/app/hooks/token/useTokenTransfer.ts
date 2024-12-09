@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useEffect, useReducer } from "react";
 import { useActiveWallet, useReadContract } from "thirdweb/react";
 import { risyTokenContract } from "../../client";
 import { RISY_TOKEN_CONFIG } from "../../config/tokens";
@@ -11,10 +11,12 @@ import {
 } from "../../utils/addressUtils";
 import { formatBalance } from "../../utils/formatUtils";
 import { ContractFactory } from "../../contracts/factory";
-import { type TokenTransferParams, type TokenTransferOptions } from "../../types/token";
-import { type AsyncState } from "../../types/common";
 import { type TokenTransferHookResult } from "../../types/context";
 import { handleError, TransactionError, isUserRejectedError } from "../../utils/errorUtils";
+import { 
+  tokenTransferReducer, 
+  initialTokenTransferState 
+} from "../../reducers/tokenTransferReducer";
 
 interface TokenTransferProps {
   senderBalance: string;
@@ -27,29 +29,16 @@ export function useTokenTransfer({
   timedTransferLimit, 
   isWhitelisted 
 }: TokenTransferProps): TokenTransferHookResult {
-  const [recipient, setRecipient] = useState("");
-  const [amount, setAmount] = useState("");
-  const [error, setError] = useState<string | null>(null);
-  const [isSubmitting, setIsSubmitting] = useState(false);
-
+  const [state, dispatch] = useReducer(tokenTransferReducer, initialTokenTransferState);
   const wallet = useActiveWallet();
   const account = wallet?.getAccount();
-
-  // Use AsyncState for loading states
-  const [recipientState, setRecipientState] = useState<AsyncState<{
-    balance: string;
-    remainingHodl: number;
-  }>>({
-    isLoading: false,
-    data: { balance: "0", remainingHodl: 0 }
-  });
 
   // Get recipient's balance and hodl limit (skip for burn address)
   const { data: recipientBalance, isLoading: isRecipientLoading } = useReadContract({
     contract: risyTokenContract,
     method: "function balanceOf(address account) view returns (uint256)",
-    params: isValidEthereumAddress(recipient) && !isBurnAddress(recipient) 
-      ? [recipient] 
+    params: isValidEthereumAddress(state.recipient) && !isBurnAddress(state.recipient) 
+      ? [state.recipient] 
       : [NULL_ADDRESS]
   });
 
@@ -73,62 +62,62 @@ export function useTokenTransfer({
 
   // Validate transfer
   useEffect(() => {
-    const numAmount = amount ? Number(amount) : 0;
+    const numAmount = state.amount ? Number(state.amount) : 0;
     const numSenderBalance = Number(senderBalance);
     const numTransferLimit = Number(timedTransferLimit);
     const numRecipientHodl = Number(recipientRemainingHodl);
 
-    if (!amount && !recipient) {
-      setError(null);
+    if (!state.amount && !state.recipient) {
+      dispatch({ type: "SET_ERROR", payload: null });
       return;
     }
 
-    if (recipient && !isValidEthereumAddress(recipient)) {
-      setError("Invalid recipient address");
+    if (state.recipient && !isValidEthereumAddress(state.recipient)) {
+      dispatch({ type: "SET_ERROR", payload: "Invalid recipient address" });
       return;
     }
 
     // HODL limit validation
-    if (recipient && !isBurnAddress(recipient) && !isDAOAddress(recipient, RISY_DAO) && amount) {
+    if (state.recipient && !isBurnAddress(state.recipient) && !isDAOAddress(state.recipient, RISY_DAO) && state.amount) {
       if (!isNaN(numAmount) && numAmount > 0) {
         const effectiveHodlLimit = numRecipientHodl === 0 && maxBalance 
           ? Number(formatBalance(maxBalance, RISY_TOKEN_CONFIG.decimals))
           : numRecipientHodl;
           
         if (numAmount > effectiveHodlLimit) {
-          setError(`Exceeds recipient's HODL limit (max: ${effectiveHodlLimit.toFixed(2)} RISY)`);
+          dispatch({ type: "SET_ERROR", payload: `Exceeds recipient's HODL limit (max: ${effectiveHodlLimit.toFixed(2)} RISY)` });
           return;
         }
       }
     }
 
     // Amount validations
-    if (amount) {
+    if (state.amount) {
       if (isNaN(numAmount) || numAmount <= 0) {
-        setError("Invalid amount");
+        dispatch({ type: "SET_ERROR", payload: "Invalid amount" });
         return;
       }
 
       if (numAmount > numSenderBalance) {
-        setError(`Insufficient balance (max: ${numSenderBalance.toFixed(2)} RISY)`);
+        dispatch({ type: "SET_ERROR", payload: `Insufficient balance (max: ${numSenderBalance.toFixed(2)} RISY)` });
         return;
       }
 
-      if (!isDAOAddress(recipient, RISY_DAO) && !isWhitelisted && numAmount > numTransferLimit) {
-        setError(`Exceeds transfer limit (max: ${numTransferLimit.toFixed(2)} RISY)`);
+      if (!isDAOAddress(state.recipient, RISY_DAO) && !isWhitelisted && numAmount > numTransferLimit) {
+        dispatch({ type: "SET_ERROR", payload: `Exceeds transfer limit (max: ${numTransferLimit.toFixed(2)} RISY)` });
         return;
       }
     }
 
-    setError(null);
-  }, [amount, recipient, senderBalance, timedTransferLimit, recipientRemainingHodl, isWhitelisted, maxBalance]);
+    dispatch({ type: "SET_ERROR", payload: null });
+  }, [state.amount, state.recipient, senderBalance, timedTransferLimit, recipientRemainingHodl]);
 
   // Calculate maximum transferable amount
   useEffect(() => {
-    if (!isValidEthereumAddress(recipient)) return;
+    if (!isValidEthereumAddress(state.recipient)) return;
 
-    if (isWhitelisted || isDAOAddress(recipient, RISY_DAO)) {
-      setAmount(Number(senderBalance).toFixed(2));
+    if (isWhitelisted || isDAOAddress(state.recipient, RISY_DAO)) {
+      dispatch({ type: "SET_AMOUNT", payload: Number(senderBalance).toFixed(2) });
       return;
     }
 
@@ -142,49 +131,44 @@ export function useTokenTransfer({
       numRecipientHodl
     );
 
-    setAmount(maxAmount > 0 ? maxAmount.toFixed(2) : "0");
-  }, [recipient, recipientRemainingHodl, timedTransferLimit, senderBalance, isWhitelisted]);
+    dispatch({ type: "SET_AMOUNT", payload: maxAmount > 0 ? maxAmount.toFixed(2) : "0" });
+  }, [state.recipient, recipientRemainingHodl, timedTransferLimit, senderBalance, isWhitelisted]);
 
   const handleTransfer = async () => {
-    if (error || !amount || !isValidEthereumAddress(recipient) || !account) {
+    if (state.error || !state.amount || !isValidEthereumAddress(state.recipient) || !account) {
       throw new TransactionError("Invalid transfer parameters");
     }
 
     try {
-      setIsSubmitting(true);
+      dispatch({ type: "SET_SUBMITTING", payload: true });
       const tokenWriter = ContractFactory.getTokenWriter(account);
       
-      if (isBurnAddress(recipient)) {
-        await tokenWriter.burn(amount);
+      if (isBurnAddress(state.recipient)) {
+        await tokenWriter.burn(state.amount);
       } else {
-        await tokenWriter.transfer(recipient, amount);
+        await tokenWriter.transfer(state.recipient, state.amount);
       }
     } catch (err) {
       if (isUserRejectedError(err)) {
-        setError("Transaction was rejected by user");
+        dispatch({ type: "SET_ERROR", payload: "Transaction was rejected by user" });
       } else {
         const walletError = handleError(err);
-        setError(walletError.message);
+        dispatch({ type: "SET_ERROR", payload: walletError.message });
       }
       throw err;
     } finally {
-      setIsSubmitting(false);
+      dispatch({ type: "SET_SUBMITTING", payload: false });
     }
   };
 
   return {
-    recipient,
-    amount,
-    error,
-    isSubmitting,
-    recipientBalance: formattedRecipientBalance,
-    recipientRemainingHodl,
-    isValidAddress: isValidEthereumAddress(recipient),
-    isRecipientLoading,
-    isBurnAddress: recipient ? isBurnAddress(recipient) : false,
-    isDAOAddress: recipient ? isDAOAddress(recipient, RISY_DAO) : false,
-    setRecipient,
-    setAmount,
+    ...state,
+    recipientRemainingHodl: Number(recipientRemainingHodl),
+    isValidAddress: isValidEthereumAddress(state.recipient),
+    isBurnAddress: state.recipient ? isBurnAddress(state.recipient) : false,
+    isDAOAddress: state.recipient ? isDAOAddress(state.recipient, RISY_DAO) : false,
+    setRecipient: (value: string) => dispatch({ type: "SET_RECIPIENT", payload: value }),
+    setAmount: (value: string) => dispatch({ type: "SET_AMOUNT", payload: value }),
     handleTransfer,
   };
 } 

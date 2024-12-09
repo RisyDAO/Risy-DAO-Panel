@@ -34,12 +34,11 @@ export function useTokenTransfer({
   const account = wallet?.getAccount();
 
   // Get recipient's balance and hodl limit (skip for burn address)
+  const shouldQueryBalance = isValidEthereumAddress(state.recipient) && !isBurnAddress(state.recipient);
   const { data: recipientBalance, isLoading: isRecipientLoading } = useReadContract({
     contract: risyTokenContract,
     method: "function balanceOf(address account) view returns (uint256)",
-    params: isValidEthereumAddress(state.recipient) && !isBurnAddress(state.recipient) 
-      ? [state.recipient] 
-      : [NULL_ADDRESS]
+    params: shouldQueryBalance ? [state.recipient] : [NULL_ADDRESS]
   });
 
   // Get max balance limit
@@ -49,16 +48,36 @@ export function useTokenTransfer({
     params: []
   });
 
-  // Format values
-  const formattedRecipientBalance = formatBalance(recipientBalance, RISY_TOKEN_CONFIG.decimals);
-  const formattedMaxBalance = formatBalance(maxBalance, RISY_TOKEN_CONFIG.decimals);
+  // Format values with proper handling of undefined/null cases
+  const formattedRecipientBalance = shouldQueryBalance && recipientBalance 
+    ? formatBalance(recipientBalance, RISY_TOKEN_CONFIG.decimals) 
+    : "0";
+  const formattedMaxBalance = maxBalance ? formatBalance(maxBalance, RISY_TOKEN_CONFIG.decimals) : "0";
+
+  // Update recipient balance in state when it changes
+  useEffect(() => {
+    if (recipientBalance !== undefined) {
+      dispatch({ 
+        type: "SET_RECIPIENT_BALANCE", 
+        payload: formattedRecipientBalance 
+      });
+    }
+  }, [recipientBalance, formattedRecipientBalance]);
 
   // Calculate recipient's remaining HODL limit
-  const recipientRemainingHodl = maxBalance 
+  const recipientRemainingHodl = maxBalance && recipientBalance !== undefined
     ? Number(recipientBalance) === 0
       ? Number(formattedMaxBalance)
-      : Math.max(0, Number(formattedMaxBalance) - Number(formattedRecipientBalance))
+      : Math.max(0, Number((Math.max(0, Number(formattedMaxBalance) - Number(formattedRecipientBalance))).toFixed(2)) - 0.01)
     : 0;
+
+  // Update recipient hodl limit in state when it changes
+  useEffect(() => {
+    dispatch({ 
+      type: "SET_RECIPIENT_HODL", 
+      payload: recipientRemainingHodl 
+    });
+  }, [recipientRemainingHodl]);
 
   // Validate transfer
   useEffect(() => {

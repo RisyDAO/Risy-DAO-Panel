@@ -1,4 +1,5 @@
 import { ErrorBoundary } from "../../shared/ErrorBoundary";
+import { LoadingState } from "../../shared/loading/LoadingState";
 import { type HodlLimitDisplayProps } from "../../../types/balance";
 
 function HodlLimitDisplayContent({
@@ -17,9 +18,13 @@ function HodlLimitDisplayContent({
           Max: {Number(maxBalance).toFixed(2)} RISY
         </span>
       </div>
-      {isLoading ? (
-        <div className="h-7 w-28 animate-pulse bg-[#374151] rounded mt-2"></div>
-      ) : (
+      <LoadingState 
+        isLoading={isLoading}
+        skeleton={{
+          count: 2,
+          height: '1.5rem'
+        }}
+      >
         <div className="space-y-2">
           <div className="flex items-baseline space-x-2">
             <span className="text-xl font-semibold text-[#818CF8]">
@@ -36,7 +41,7 @@ function HodlLimitDisplayContent({
             />
           </div>
         </div>
-      )}
+      </LoadingState>
     </div>
   );
 }

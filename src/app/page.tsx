@@ -5,6 +5,7 @@ import { Layout } from "./components/layout/Layout";
 import { TokenBalance } from "./components/token/TokenBalance";
 import { TransferPanel } from "./components/token/TransferPanel";
 import { StatusBadge } from "./components/shared/StatusBadge";
+import { LoadingState } from "./components/shared/loading/LoadingState";
 import { useToken } from "./contexts/TokenContext";
 import { useWallet } from "./contexts/WalletContext";
 
@@ -27,37 +28,57 @@ function WhitelistBanner() {
   const { isWhitelisted, isWhitelistLoading } = useWallet();
   const { walletAddress } = useWallet();
 
-  if (!walletAddress || isWhitelistLoading || !isWhitelisted) return null;
+  if (!walletAddress) return null;
 
   return (
-    <div className="mb-8">
-      <StatusBadge
-        variant="success"
-        icon={
-          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} 
-              d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"
-            />
-          </svg>
-        }
-      >
-        <div>
-          <h3 className="font-semibold text-inherit">Whitelisted Account</h3>
-          <p className="text-sm opacity-90">
-            Your account is whitelisted. You are exempt from transfer limits and HODL restrictions.
-          </p>
+    <LoadingState
+      isLoading={isWhitelistLoading}
+      skeleton={{
+        count: 1,
+        height: '5rem'
+      }}
+    >
+      {isWhitelisted && (
+        <div className="mb-8">
+          <StatusBadge
+            variant="success"
+            icon={
+              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} 
+                  d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"
+                />
+              </svg>
+            }
+          >
+            <div>
+              <h3 className="font-semibold text-inherit">Whitelisted Account</h3>
+              <p className="text-sm opacity-90">
+                Your account is whitelisted. You are exempt from transfer limits and HODL restrictions.
+              </p>
+            </div>
+          </StatusBadge>
         </div>
-      </StatusBadge>
-    </div>
+      )}
+    </LoadingState>
   );
 }
 
 function DashboardContent() {
+  const { isTokenLoading } = useToken();
+
   return (
-    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-      <TokenBalance />
-      <TransferPanel />
-    </div>
+    <LoadingState
+      isLoading={isTokenLoading}
+      skeleton={{
+        count: 2,
+        height: '24rem'
+      }}
+    >
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <TokenBalance />
+        <TransferPanel />
+      </div>
+    </LoadingState>
   );
 }
 

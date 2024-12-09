@@ -1,5 +1,6 @@
 import { ErrorBoundary } from "../shared/ErrorBoundary";
 import { Button } from "../shared/Button";
+import { LoadingSpinner } from "../shared/loading/LoadingSpinner";
 import { useToken } from "../../contexts/TokenContext";
 
 function TransferButtonContent() {
@@ -14,6 +15,13 @@ function TransferButtonContent() {
   } = state;
 
   const getButtonContent = () => {
+    if (isSubmitting) {
+      return {
+        icon: <LoadingSpinner size="sm" />,
+        text: "Processing..."
+      };
+    }
+
     if (!recipient) {
       return {
         icon: (
@@ -82,7 +90,6 @@ function TransferButtonContent() {
     <Button
       type="submit"
       disabled={isSubmitting || !amount || !recipient || !!error}
-      isLoading={isSubmitting}
       variant={error ? 'secondary' : 'primary'}
     >
       {content.icon}

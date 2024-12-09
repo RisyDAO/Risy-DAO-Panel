@@ -74,7 +74,11 @@ export class TokenReader extends BaseTokenService<typeof import("../../client").
     });
   }
 
-  getDecimals(): number {
-    return this.getDecimals();
+  async getDecimals(): Promise<number> {
+    return readContract({
+      contract: this.contract,
+      method: "function decimals() view returns (uint8)",
+      params: []
+    });
   }
 } 

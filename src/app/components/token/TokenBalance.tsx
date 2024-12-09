@@ -1,5 +1,6 @@
 import { ErrorBoundary } from "../shared/ErrorBoundary";
 import { Card } from "../shared/Card";
+import { LoadingState } from "../shared/loading/LoadingState";
 import { BalanceDisplay } from "./balance/BalanceDisplay";
 import { TransferLimitDisplay } from "./balance/TransferLimitDisplay";
 import { HodlLimitDisplay } from "./balance/HodlLimitDisplay";
@@ -29,30 +30,38 @@ function TokenBalanceContent() {
   const showLimits = !isWhitelisted;
 
   return (
-    <div className="space-y-6">
-      <BalanceDisplay 
-        balance={balance} 
-        isLoading={isBalanceLoading} 
-      />
+    <LoadingState 
+      isLoading={isBalanceLoading || isTransferLimitLoading || isMaxBalanceLoading}
+      skeleton={{
+        count: showLimits ? 3 : 1,
+        height: '8rem'
+      }}
+    >
+      <div className="space-y-6">
+        <BalanceDisplay 
+          balance={balance} 
+          isLoading={isBalanceLoading} 
+        />
 
-      {showLimits && (
-        <>
-          <TransferLimitDisplay
-            timedTransferLimit={timedTransferLimit}
-            globalTransferLimit={globalTransferLimit}
-            isLoading={isTransferLimitLoading}
-            resetTime={resetTime}
-          />
+        {showLimits && (
+          <>
+            <TransferLimitDisplay
+              timedTransferLimit={timedTransferLimit}
+              globalTransferLimit={globalTransferLimit}
+              isLoading={isTransferLimitLoading}
+              resetTime={resetTime}
+            />
 
-          <HodlLimitDisplay
-            balance={balance}
-            maxBalance={maxBalance}
-            remainingHodlLimit={remainingHodlLimit}
-            isLoading={isMaxBalanceLoading}
-          />
-        </>
-      )}
-    </div>
+            <HodlLimitDisplay
+              balance={balance}
+              maxBalance={maxBalance}
+              remainingHodlLimit={remainingHodlLimit}
+              isLoading={isMaxBalanceLoading}
+            />
+          </>
+        )}
+      </div>
+    </LoadingState>
   );
 }
 

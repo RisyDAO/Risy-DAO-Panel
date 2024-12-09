@@ -27,7 +27,7 @@ export abstract class BaseTokenService<T extends ThirdwebContract> {
     return !isNaN(numAmount) && numAmount > 0;
   }
 
-  protected getDecimals(): number {
+  protected getDefaultDecimals(): number {
     return RISY_TOKEN_CONFIG.decimals;
   }
 } 

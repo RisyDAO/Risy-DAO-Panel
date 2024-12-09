@@ -1,4 +1,5 @@
 import { ErrorBoundary } from "../../shared/ErrorBoundary";
+import { LoadingState } from "../../shared/loading/LoadingState";
 import { type TransferLimitDisplayProps } from "../../../types/balance";
 
 function TransferLimitDisplayContent({
@@ -20,9 +21,13 @@ function TransferLimitDisplayContent({
           </span>
         )}
       </div>
-      {isLoading ? (
-        <div className="h-7 w-28 animate-pulse bg-[#374151] rounded mt-2"></div>
-      ) : (
+      <LoadingState 
+        isLoading={isLoading}
+        skeleton={{
+          count: 2,
+          height: '1.5rem'
+        }}
+      >
         <div className="space-y-2">
           <div className="flex items-baseline space-x-2">
             <span className="text-xl font-semibold text-[#34D399]">
@@ -43,7 +48,7 @@ function TransferLimitDisplayContent({
             </div>
           )}
         </div>
-      )}
+      </LoadingState>
     </div>
   );
 }

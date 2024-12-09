@@ -1,20 +1,20 @@
 import { ErrorBoundary } from "../../shared/ErrorBoundary";
+import { LoadingState } from "../../shared/loading/LoadingState";
 import { type BalanceDisplayProps } from "../../../types/balance";
 
 function BalanceDisplayContent({ balance, isLoading }: BalanceDisplayProps) {
-  if (isLoading) {
-    return (
-      <div className="animate-pulse">
-        <div className="h-7 w-32 bg-gray-700 rounded mb-2"></div>
-        <div className="h-5 w-24 bg-gray-700 rounded"></div>
-      </div>
-    );
-  }
-
   return (
-    <h3 className="text-2xl font-bold mb-2">
-      {Number(balance).toLocaleString()} RISY
-    </h3>
+    <LoadingState 
+      isLoading={isLoading}
+      skeleton={{
+        count: 2,
+        height: '2rem'
+      }}
+    >
+      <h3 className="text-2xl font-bold mb-2">
+        {Number(balance).toLocaleString()} RISY
+      </h3>
+    </LoadingState>
   );
 }
 

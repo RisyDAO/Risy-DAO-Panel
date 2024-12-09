@@ -1,24 +1,34 @@
 import { ErrorBoundary } from "../../shared/ErrorBoundary";
 import { StatusBadge } from "../../shared/StatusBadge";
+import { LoadingState } from "../../shared/loading/LoadingState";
 import Image from "next/image";
 
 interface LogoProps {
   src: string;
   alt: string;
+  isLoading?: boolean;
 }
 
-function LogoContent({ src, alt }: LogoProps) {
+function LogoContent({ src, alt, isLoading = false }: LogoProps) {
   return (
-    <div className="relative w-8 h-8">
-      <Image
-        src={src}
-        alt={alt}
-        width={32}
-        height={32}
-        className="rounded-full"
-        priority
-      />
-    </div>
+    <LoadingState
+      isLoading={isLoading}
+      skeleton={{
+        count: 1,
+        height: '2rem'
+      }}
+    >
+      <div className="relative w-8 h-8">
+        <Image
+          src={src}
+          alt={alt}
+          width={32}
+          height={32}
+          className="rounded-full"
+          priority
+        />
+      </div>
+    </LoadingState>
   );
 }
 

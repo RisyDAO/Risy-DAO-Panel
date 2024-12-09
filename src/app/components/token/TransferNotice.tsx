@@ -1,9 +1,11 @@
 import { ErrorBoundary } from "../shared/ErrorBoundary";
 import { StatusBadge } from "../shared/StatusBadge";
+import { LoadingState } from "../shared/loading/LoadingState";
 import { useToken } from "../../contexts/TokenContext";
 
 function TransferNoticeContent() {
-  const { transfer: { state: { isBurnAddress, isDAOAddress } } } = useToken();
+  const { transfer: { state } } = useToken();
+  const { isBurnAddress, isDAOAddress, isRecipientLoading } = state;
 
   if (!isBurnAddress && !isDAOAddress) return null;
 
@@ -15,28 +17,34 @@ function TransferNoticeContent() {
     </svg>
   );
 
-  if (isBurnAddress) {
-    return (
-      <StatusBadge variant="warning" icon={icon}>
-        <div>
-          <h3 className="font-semibold text-inherit">Token Burn Notice</h3>
-          <p className="text-sm opacity-90">
-            Sending tokens to the null address (0x0) will burn them permanently. This action cannot be undone.
-          </p>
-        </div>
-      </StatusBadge>
-    );
-  }
-
   return (
-    <StatusBadge variant="info" icon={icon}>
-      <div>
-        <h3 className="font-semibold text-inherit">DAO Transfer Notice</h3>
-        <p className="text-sm opacity-90">
-          Transferring to the DAO address. This transfer is exempt from time-based transfer limits.
-        </p>
-      </div>
-    </StatusBadge>
+    <LoadingState
+      isLoading={isRecipientLoading}
+      skeleton={{
+        count: 1,
+        height: '5rem'
+      }}
+    >
+      {isBurnAddress ? (
+        <StatusBadge variant="warning" icon={icon}>
+          <div>
+            <h3 className="font-semibold text-inherit">Token Burn Notice</h3>
+            <p className="text-sm opacity-90">
+              Sending tokens to the null address (0x0) will burn them permanently. This action cannot be undone.
+            </p>
+          </div>
+        </StatusBadge>
+      ) : (
+        <StatusBadge variant="info" icon={icon}>
+          <div>
+            <h3 className="font-semibold text-inherit">DAO Transfer Notice</h3>
+            <p className="text-sm opacity-90">
+              Transferring to the DAO address. This transfer is exempt from time-based transfer limits.
+            </p>
+          </div>
+        </StatusBadge>
+      )}
+    </LoadingState>
   );
 }
 

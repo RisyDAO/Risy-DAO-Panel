@@ -14,7 +14,7 @@ function LoadingSpinnerContent({ size = 'md', className = '' }: LoadingSpinnerPr
 
   return (
     <svg 
-      className={`animate-spin ${sizeClasses[size]} ${className}`} 
+      className={`animate-spin text-white ${sizeClasses[size]} ${className}`} 
       fill="none" 
       viewBox="0 0 24 24"
     >

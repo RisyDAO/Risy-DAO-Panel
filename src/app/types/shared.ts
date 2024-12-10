@@ -65,4 +65,10 @@ export interface StatusBadgeProps {
 export interface BadgeContentProps {
   icon?: ReactNode;
   children: ReactNode;
+}
+
+export interface ErrorFallbackProps {
+  title: string;
+  message: string;
+  onClose?: () => void;
 } 

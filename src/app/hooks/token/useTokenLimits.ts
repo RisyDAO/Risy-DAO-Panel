@@ -59,11 +59,18 @@ export function useTokenLimits() {
 
         // If transferable is 0, calculate it based on balance and transfer limit percent
         let transferableAmount = limitDetails.transferLimit;
+        let transferableAmountGlobal = (balanceResult.balance * globalLimit[1]) / BigInt(10 ** 18);
         if (transferableAmount === 0n && globalLimit?.[1] && balanceResult.balance > 0n) {
           // Calculate: balance * transferLimitPercent / 10^18
-          transferableAmount = (balanceResult.balance * globalLimit[1]) / BigInt(10 ** 18);
+          transferableAmount = transferableAmountGlobal;
         }
 
+        // For robustness, if transferableAmount is more than the global limit, set it to the global limit
+        if(transferableAmount > transferableAmountGlobal) {
+          transferableAmount = transferableAmountGlobal;
+        }
+
+        // For robustness, leave a buffer of 10^16 RISY
         if(transferableAmount > 0n) {
           transferableAmount = transferableAmount - BigInt(10 ** 16);
         }

@@ -17,6 +17,7 @@ import {
   tokenTransferReducer, 
   initialTokenTransferState 
 } from "../../reducers/tokenTransferReducer";
+import { type PreparedTransaction } from "thirdweb";
 
 interface TokenTransferProps {
   senderBalance: string;
@@ -176,6 +177,31 @@ export function useTokenTransfer({
     }
   };
 
+  const prepareTransfer = async (): Promise<PreparedTransaction> => {
+    if (state.error || !state.amount || !isValidEthereumAddress(state.recipient) || !account) {
+      throw new TransactionError("Invalid transfer parameters");
+    }
+
+    try {
+      const tokenWriter = ContractFactory.getTokenWriter(account);
+      
+      // Return prepared transaction
+      if (isBurnAddress(state.recipient)) {
+        return tokenWriter.prepare("burn", [state.amount]);
+      } else {
+        return tokenWriter.prepare("transfer", [state.recipient, state.amount]);
+      }
+    } catch (err) {
+      if (isUserRejectedError(err)) {
+        dispatch({ type: "SET_ERROR", payload: "Transaction was rejected by user" });
+      } else {
+        const walletError = handleError(err);
+        dispatch({ type: "SET_ERROR", payload: walletError.message });
+      }
+      throw err;
+    }
+  };
+
   return {
     ...state,
     recipientRemainingHodl: Number(recipientRemainingHodl),
@@ -185,5 +211,6 @@ export function useTokenTransfer({
     setRecipient: (value: string) => dispatch({ type: "SET_RECIPIENT", payload: value }),
     setAmount: (value: string) => dispatch({ type: "SET_AMOUNT", payload: value }),
     handleTransfer,
+    prepareTransfer,
   };
 } 

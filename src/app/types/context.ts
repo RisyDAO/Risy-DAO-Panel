@@ -1,6 +1,7 @@
 import { type ReactNode } from "react";
 import { type Account } from "thirdweb/wallets";
 import { type TokenConfig } from "./token";
+import { type PreparedTransaction } from "thirdweb";
 
 // Wallet Context Types
 export interface WalletContextValue {
@@ -46,6 +47,7 @@ export interface TokenTransferHookResult extends TokenTransferState {
   setRecipient: (value: string) => void;
   setAmount: (value: string) => void;
   handleTransfer: () => Promise<void>;
+  prepareTransfer: () => Promise<PreparedTransaction>;
 }
 
 export interface TokenContextValue extends TokenState {
@@ -54,6 +56,7 @@ export interface TokenContextValue extends TokenState {
     setRecipient: (value: string) => void;
     setAmount: (value: string) => void;
     handleTransfer: () => Promise<void>;
+    prepareTransfer: () => Promise<PreparedTransaction>;
   };
 }
 

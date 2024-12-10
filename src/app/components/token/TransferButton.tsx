@@ -1,18 +1,24 @@
 import { ErrorBoundary } from "../shared/ErrorBoundary";
 import { Button } from "../shared/Button";
 import { LoadingSpinner } from "../shared/loading/LoadingSpinner";
-import { useToken } from "../../contexts/TokenContext";
+import { type TransferButtonProps } from "../../types/transfer";
 
-function TransferButtonContent() {
-  const { transfer: { state } } = useToken();
-  const { 
-    recipient, 
-    amount, 
-    error, 
-    isSubmitting, 
-    isBurnAddress, 
-    isValidAddress 
-  } = state;
+function TransferButtonContent({
+  recipient,
+  amount,
+  error,
+  isSubmitting,
+  isBurnAddress,
+  isValidAddress,
+  walletAddress,
+}: TransferButtonProps) {
+  // Check if form is valid
+  const isFormValid = recipient && 
+    amount && 
+    isValidAddress && 
+    !error && 
+    !isSubmitting && 
+    walletAddress;
 
   const getButtonContent = () => {
     if (isSubmitting) {
@@ -77,7 +83,9 @@ function TransferButtonContent() {
     return {
       icon: (
         <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} 
+            d="M13 10V3L4 14h7v7l9-11h-7z" 
+          />
         </svg>
       ),
       text: isBurnAddress ? `Burn ${amount} RISY` : `Transfer ${amount} RISY`
@@ -88,20 +96,20 @@ function TransferButtonContent() {
 
   return (
     <Button
-      type="submit"
-      disabled={isSubmitting || !amount || !recipient || !!error}
+      type="button"
+      disabled={!isFormValid || isSubmitting || !!error || !walletAddress}
       variant={error ? 'secondary' : 'primary'}
+      icon={content.icon}
     >
-      {content.icon}
-      <span>{content.text}</span>
+      {content.text}
     </Button>
   );
 }
 
-export function TransferButton() {
+export function TransferButton(props: TransferButtonProps) {
   return (
     <ErrorBoundary title="Failed to load transfer button">
-      <TransferButtonContent />
+      <TransferButtonContent {...props} />
     </ErrorBoundary>
   );
 } 

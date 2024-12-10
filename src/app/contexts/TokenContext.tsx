@@ -1,6 +1,6 @@
 "use client";
 
-import { createContext, useContext, useCallback } from "react";
+import { createContext, useContext } from "react";
 import { useTokenBalance } from "../hooks/token/useTokenBalance";
 import { useTokenLimits } from "../hooks/token/useTokenLimits";
 import { useTokenTransfer } from "../hooks/token/useTokenTransfer";
@@ -37,7 +37,7 @@ export function TokenProvider({ children }: ProviderProps) {
     resetTime,
   } = useTokenLimits();
 
-  // Set up transfer functionality
+  // Set up transfer functionality with prepare support
   const transferHook = useTokenTransfer({
     senderBalance: balance,
     timedTransferLimit,
@@ -64,7 +64,7 @@ export function TokenProvider({ children }: ProviderProps) {
     isMaxBalanceLoading,
     isTransferLimitLoading,
 
-    // Transfer functionality
+    // Transfer functionality with prepare support
     transfer: {
       state: {
         recipient: transferHook.recipient,
@@ -81,6 +81,7 @@ export function TokenProvider({ children }: ProviderProps) {
       setRecipient: transferHook.setRecipient,
       setAmount: transferHook.setAmount,
       handleTransfer: transferHook.handleTransfer,
+      prepareTransfer: transferHook.prepareTransfer,
     },
   };
 

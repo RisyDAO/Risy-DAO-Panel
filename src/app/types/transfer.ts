@@ -31,12 +31,14 @@ export interface TransferButtonProps {
   amount: string;
   error: string | null;
   isSubmitting: boolean;
-  walletAddress?: string;
   isBurnAddress: boolean;
   isValidAddress: boolean;
+  walletAddress?: string;
+  className?: string;
 }
 
 export interface TransferNoticeProps {
   isBurnAddress: boolean;
   isDAOAddress: boolean;
+  isRecipientLoading: boolean;
 } 

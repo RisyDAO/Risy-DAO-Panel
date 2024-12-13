@@ -1,12 +1,13 @@
-import { ErrorBoundary } from "../../shared/ErrorBoundary";
-import { LoadingState } from "../../shared/loading/LoadingState";
+import { ErrorBoundary } from "./ErrorBoundary";
+import { LoadingState } from "./loading/LoadingState";
 
 interface DisconnectedStateProps {
   message: string;
+  description?: string;
   isLoading?: boolean;
 }
 
-function DisconnectedStateContent({ message, isLoading = false }: DisconnectedStateProps) {
+function DisconnectedStateContent({ message, description, isLoading = false }: DisconnectedStateProps) {
   return (
     <LoadingState
       isLoading={isLoading}
@@ -30,7 +31,7 @@ function DisconnectedStateContent({ message, isLoading = false }: DisconnectedSt
           </div>
           <div className="space-y-2">
             <p className="text-[#9CA3AF] font-medium">{message}</p>
-            <p className="text-sm text-[#6B7280]">to view your balance and transfer tokens</p>
+            <p className="text-sm text-[#6B7280]">{description}</p>
           </div>
         </div>
       </div>

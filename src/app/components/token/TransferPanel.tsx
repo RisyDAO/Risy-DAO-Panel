@@ -9,24 +9,21 @@ import { ErrorFallback } from "../shared/ErrorFallback";
 import { StatusBadge } from "../shared/StatusBadge";
 import { useState, useEffect } from "react";
 import { type TransactionReceipt } from "thirdweb/transaction";
+import { DisconnectedState } from "../shared/DisconnectedState";
 
 function TransferPanelContent() {
   const { transfer } = useToken();
   const { walletAddress } = useWallet();
   const { state, setRecipient, setAmount } = transfer;
-  const [showWalletError, setShowWalletError] = useState(false);
   const [transactionStatus, setTransactionStatus] = useState<{
     success?: boolean;
     message?: string;
   } | null>(null);
 
-  useEffect(() => {
-    if (!walletAddress && (state.recipient || state.amount)) {
-      setShowWalletError(true);
-    } else {
-      setShowWalletError(false);
-    }
-  }, [walletAddress, state.recipient, state.amount]);
+  // Check wallet connection first
+  if (!walletAddress) {
+    return <DisconnectedState message="Connect your wallet" description="to transfer tokens" />;
+  }
 
   // Split error messages by type
   const getErrorType = () => {
@@ -69,13 +66,6 @@ function TransferPanelContent() {
 
   const handleCloseStatus = () => {
     setTransactionStatus(null);
-  };
-
-  const handleCloseWalletError = () => {
-    setShowWalletError(false);
-    // Clear form when dismissing wallet error
-    setRecipient("");
-    setAmount("");
   };
 
   return (
@@ -141,18 +131,6 @@ function TransferPanelContent() {
             </div>
           </StatusBadge>
         </div>
-      )}
-
-      {/* General Error */}
-      {(showWalletError || errorType === 'general') && (
-        <ErrorFallback
-          title={showWalletError ? "Wallet Not Connected" : "Transfer Error"}
-          message={showWalletError 
-            ? "Please connect your wallet to transfer tokens"
-            : state.error || "An error occurred while processing your transfer"
-          }
-          onClose={showWalletError ? handleCloseWalletError : () => setTransactionStatus(null)}
-        />
       )}
 
       <TransferButtonWrapper

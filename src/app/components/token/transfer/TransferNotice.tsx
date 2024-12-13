@@ -22,7 +22,7 @@ function TransferNoticeContent() {
       isLoading={isRecipientLoading}
       skeleton={{
         count: 1,
-        height: '5rem'
+        height: '2.5rem'
       }}
     >
       {isBurnAddress ? (

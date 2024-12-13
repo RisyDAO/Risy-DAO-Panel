@@ -4,6 +4,7 @@ import { Skeleton } from "./Skeleton";
 
 interface LoadingStateProps {
   variant?: 'spinner' | 'skeleton';
+  direction?: 'h' | 'v';
   isLoading: boolean;
   skeleton?: {
     count?: number;
@@ -15,6 +16,7 @@ interface LoadingStateProps {
 
 function LoadingStateContent({
   variant = 'skeleton',
+  direction = 'v',
   isLoading,
   skeleton = { count: 1, height: '2rem' },
   children
@@ -29,8 +31,12 @@ function LoadingStateContent({
     );
   }
 
+  const containerClassName = direction === 'v' 
+    ? 'space-y-2' 
+    : 'flex space-x-2';
+
   return (
-    <div className="space-y-2">
+    <div className={containerClassName + ' m-1'}>
       {Array.from({ length: skeleton.count || 1 }).map((_, index) => (
         <Skeleton
           key={index}

@@ -8,7 +8,7 @@ function BalanceDisplayContent({ balance, isLoading }: BalanceDisplayProps) {
       isLoading={isLoading}
       skeleton={{
         count: 2,
-        height: '2rem'
+        height: '1rem'
       }}
     >
       <h3 className="text-2xl font-bold mb-2">

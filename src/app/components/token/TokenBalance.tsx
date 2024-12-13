@@ -34,7 +34,7 @@ function TokenBalanceContent() {
       isLoading={isBalanceLoading || isTransferLimitLoading || isMaxBalanceLoading}
       skeleton={{
         count: showLimits ? 3 : 1,
-        height: '8rem'
+        height: '2.5rem'
       }}
     >
       <div className="space-y-6">

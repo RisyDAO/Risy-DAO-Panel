@@ -31,14 +31,7 @@ function WhitelistBanner() {
   if (!walletAddress) return null;
 
   return (
-    <LoadingState
-      isLoading={isWhitelistLoading}
-      skeleton={{
-        count: 1,
-        height: '5rem'
-      }}
-    >
-      {isWhitelisted && (
+      isWhitelisted && (
         <div className="mb-8">
           <StatusBadge
             variant="success"
@@ -58,8 +51,7 @@ function WhitelistBanner() {
             </div>
           </StatusBadge>
         </div>
-      )}
-    </LoadingState>
+      )
   );
 }
 
@@ -70,9 +62,10 @@ function DashboardContent() {
     <LoadingState
       isLoading={isTokenLoading}
       skeleton={{
-        count: 2,
+        count: 3,
         height: '24rem'
       }}
+      direction="h"
     >
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         <TokenBalance />

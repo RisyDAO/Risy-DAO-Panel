@@ -1,7 +1,7 @@
-import { Input } from "../shared/Input";
-import { useToken } from "../../contexts/TokenContext";
-import { ErrorBoundary } from "../shared/ErrorBoundary";
-import { type TransferInputProps } from "../../types/transfer";
+import { Input } from "../../shared/Input";
+import { useToken } from "../../../contexts/TokenContext";
+import { ErrorBoundary } from "../../shared/ErrorBoundary";
+import { type TransferInputProps } from "../../../types/transfer";
 
 function TransferInputContent({
   type,

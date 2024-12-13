@@ -1,7 +1,7 @@
-import { ErrorBoundary } from "../shared/ErrorBoundary";
-import { Button } from "../shared/Button";
-import { LoadingSpinner } from "../shared/loading/LoadingSpinner";
-import { type TransferButtonProps } from "../../types/transfer";
+import { ErrorBoundary } from "../../shared/ErrorBoundary";
+import { Button } from "../../shared/Button";
+import { LoadingSpinner } from "../../shared/loading/LoadingSpinner";
+import { type TransferButtonProps } from "../../../types/transfer";
 
 function TransferButtonContent({
   recipient,

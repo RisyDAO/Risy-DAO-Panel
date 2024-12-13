@@ -1,9 +1,9 @@
-import { useToken } from "../../contexts/TokenContext";
+import { useToken } from "../../../contexts/TokenContext";
 import { TransferButton } from "./TransferButton";
-import { ErrorBoundary } from "../shared/ErrorBoundary";
-import { useWallet } from "../../contexts/WalletContext";
-import { type TransferButtonWrapperProps } from "../../types/transaction";
-import { TransactionButtonWrapper } from "../shared/TransactionButtonWrapper";
+import { ErrorBoundary } from "../../shared/ErrorBoundary";
+import { useWallet } from "../../../contexts/WalletContext";
+import { type TransferButtonWrapperProps } from "../../../types/transaction";
+import { TransactionButtonWrapper } from "../../shared/TransactionButtonWrapper";
 
 function TransferButtonContent({ 
   className,

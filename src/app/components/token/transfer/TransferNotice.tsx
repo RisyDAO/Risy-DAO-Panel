@@ -1,7 +1,7 @@
-import { ErrorBoundary } from "../shared/ErrorBoundary";
-import { StatusBadge } from "../shared/StatusBadge";
-import { LoadingState } from "../shared/loading/LoadingState";
-import { useToken } from "../../contexts/TokenContext";
+import { ErrorBoundary } from "../../shared/ErrorBoundary";
+import { StatusBadge } from "../../shared/StatusBadge";
+import { LoadingState } from "../../shared/loading/LoadingState";
+import { useToken } from "../../../contexts/TokenContext";
 
 function TransferNoticeContent() {
   const { transfer: { state } } = useToken();

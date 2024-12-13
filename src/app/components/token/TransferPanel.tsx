@@ -1,8 +1,8 @@
 import { ErrorBoundary } from "../shared/ErrorBoundary";
 import { Card } from "../shared/Card";
-import { TransferButtonWrapper } from "./TransferButtonWrapper";
-import { TransferNotice } from "./TransferNotice";
-import { TransferInput } from "./TransferInput";
+import { TransferButtonWrapper } from "./transfer/TransferButtonWrapper";
+import { TransferNotice } from "./transfer/TransferNotice";
+import { TransferInput } from "./transfer/TransferInput";
 import { useToken } from "../../contexts/TokenContext";
 import { useWallet } from "../../contexts/WalletContext";
 import { ErrorFallback } from "../shared/ErrorFallback";

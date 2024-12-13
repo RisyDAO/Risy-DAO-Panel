@@ -7,20 +7,26 @@ import { useToken } from "../../contexts/TokenContext";
 import { useWallet } from "../../contexts/WalletContext";
 import { ErrorFallback } from "../shared/ErrorFallback";
 import { StatusBadge } from "../shared/StatusBadge";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { type TransactionReceipt } from "thirdweb/transaction";
 
 function TransferPanelContent() {
   const { transfer } = useToken();
   const { walletAddress } = useWallet();
   const { state, setRecipient, setAmount } = transfer;
+  const [showWalletError, setShowWalletError] = useState(false);
   const [transactionStatus, setTransactionStatus] = useState<{
     success?: boolean;
     message?: string;
   } | null>(null);
 
-  // Determine if we should show wallet connection error
-  const showWalletError = !walletAddress && (state.recipient || state.amount);
+  useEffect(() => {
+    if (!walletAddress && (state.recipient || state.amount)) {
+      setShowWalletError(true);
+    } else {
+      setShowWalletError(false);
+    }
+  }, [walletAddress, state.recipient, state.amount]);
 
   // Split error messages by type
   const getErrorType = () => {
@@ -63,6 +69,13 @@ function TransferPanelContent() {
 
   const handleCloseStatus = () => {
     setTransactionStatus(null);
+  };
+
+  const handleCloseWalletError = () => {
+    setShowWalletError(false);
+    // Clear form when dismissing wallet error
+    setRecipient("");
+    setAmount("");
   };
 
   return (
@@ -138,7 +151,7 @@ function TransferPanelContent() {
             ? "Please connect your wallet to transfer tokens"
             : state.error || "An error occurred while processing your transfer"
           }
-          onClose={() => setTransactionStatus(null)}
+          onClose={showWalletError ? handleCloseWalletError : () => setTransactionStatus(null)}
         />
       )}
 

@@ -5,9 +5,8 @@ import { TransferNotice } from "./transfer/TransferNotice";
 import { TransferInput } from "./transfer/TransferInput";
 import { useToken } from "../../contexts/TokenContext";
 import { useWallet } from "../../contexts/WalletContext";
-import { ErrorFallback } from "../shared/ErrorFallback";
 import { StatusBadge } from "../shared/StatusBadge";
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { type TransactionReceipt } from "thirdweb/transaction";
 import { DisconnectedState } from "../shared/DisconnectedState";
 

@@ -3,7 +3,6 @@ import { useEffect, useState } from "react";
 import { ContractFactory } from "../../contracts/factory";
 import { formatBalance, formatDuration } from "../../utils/formatUtils";
 import { RISY_TOKEN_CONFIG } from "@/app/config/tokens";
-import { type TokenLimits } from "../../types/token";
 import { type AsyncState } from "../../types/common";
 
 type TransferLimit = readonly [bigint, bigint];

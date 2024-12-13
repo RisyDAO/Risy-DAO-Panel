@@ -35,18 +35,26 @@ function TransferLimitDisplayContent({
             </span>
             <span className="text-sm text-[#9CA3AF]">RISY</span>
           </div>
-          {resetTime && (
-            <div className="flex items-center space-x-1">
-              <svg className="w-4 h-4 text-[#9CA3AF]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} 
-                  d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" 
-                />
-              </svg>
-              <span className="text-xs text-[#9CA3AF]">
-                Resets in {resetTime}
-              </span>
-            </div>
-          )}
+          <LoadingState
+            isLoading={!resetTime}
+            skeleton={{
+              count: 1,
+              height: '1rem'
+            }}
+          >
+            {resetTime && (
+              <div className="flex items-center space-x-1">
+                <svg className="w-4 h-4 text-[#9CA3AF]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} 
+                    d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" 
+                  />
+                </svg>
+                <span className="text-xs text-[#9CA3AF]">
+                  Resets in {resetTime}
+                </span>
+              </div>
+            )}
+          </LoadingState>
         </div>
       </LoadingState>
     </div>

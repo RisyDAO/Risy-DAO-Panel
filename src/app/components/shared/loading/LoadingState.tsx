@@ -4,7 +4,7 @@ import { Skeleton } from "./Skeleton";
 
 interface LoadingStateProps {
   variant?: 'spinner' | 'skeleton';
-  direction?: 'h' | 'v';
+  direction?: 'h' | 'v' | 'a';
   isLoading: boolean;
   skeleton?: {
     count?: number;
@@ -31,9 +31,11 @@ function LoadingStateContent({
     );
   }
 
-  const containerClassName = direction === 'v' 
-    ? 'space-y-2' 
-    : 'flex space-x-2';
+  const containerClassName = direction === 'a'
+    ? 'space-y-2 sm:space-y-0 sm:flex sm:space-x-2'
+    : direction === 'v'
+      ? 'space-y-2' 
+      : 'flex space-x-2';
 
   return (
     <div className={containerClassName + ' m-1'}>

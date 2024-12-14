@@ -18,11 +18,19 @@ export const wallets = [
     },
   }),
   createWallet("io.metamask"),
-  createWallet("com.brave.wallet"),
   createWallet("com.okex.wallet"),
-  createWallet("com.binance"),
+  createWallet("com.bitget.web3"),
   createWallet("com.trustwallet.app"),
+  createWallet("com.binance"),
   createWallet("io.1inch.wallet"),
   createWallet("com.coinbase.wallet"),
   createWallet("com.crypto.wallet"),
-]; 
+  createWallet("com.brave.wallet"),
+  createWallet("walletConnect")
+];
+
+export const recommendedWallets = [
+  createWallet("io.metamask"),
+  createWallet("com.okex.wallet"),
+  createWallet("com.bitget.web3")
+];

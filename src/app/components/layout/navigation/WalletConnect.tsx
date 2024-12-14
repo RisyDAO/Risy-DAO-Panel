@@ -1,6 +1,6 @@
 import { ErrorBoundary } from "../../shared/ErrorBoundary";
 import { LoadingState } from "../../shared/loading/LoadingState";
-import { ConnectButton } from "thirdweb/react";
+import { ConnectButton, LocaleId } from "thirdweb/react";
 import { client } from "../../../client";
 import { wallets, recommendedWallets } from "../../../wallets";
 import { RISY_TOKEN_CONFIG } from "../../../config/tokens";
@@ -25,8 +25,13 @@ function WalletConnectContent({ isLoading = false }: WalletConnectProps) {
       <ConnectButton
         client={client}
         wallets={wallets}
+        walletConnect={{
+          projectId: "49c3fa7d29cce87f7561ff989b8ebe1f"
+        }}
         recommendedWallets={recommendedWallets}
+        showAllWallets={true}
         autoConnect={true}
+        locale={window?.navigator?.language as LocaleId}
         chains={supportedChains}
         supportedTokens={{
           [supportedChains[0].id]: [

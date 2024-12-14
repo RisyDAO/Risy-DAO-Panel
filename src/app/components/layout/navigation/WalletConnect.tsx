@@ -26,6 +26,7 @@ function WalletConnectContent({ isLoading = false }: WalletConnectProps) {
         client={client}
         wallets={wallets}
         recommendedWallets={recommendedWallets}
+        autoConnect={true}
         chains={supportedChains}
         supportedTokens={{
           [supportedChains[0].id]: [

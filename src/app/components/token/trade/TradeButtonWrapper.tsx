@@ -97,6 +97,10 @@ function TradeButtonContent({
       }
     }
 
+    // For buy: show estimated RISY output
+    // For sell: show RISY input amount
+    const displayAmount = type === 'buy' ? state.estimatedOutput : amount;
+
     return {
       icon: (
         <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -105,7 +109,7 @@ function TradeButtonContent({
           />
         </svg>
       ),
-      text: type === 'buy' ? `Buy ${amount} RISY` : `Sell ${amount} RISY`
+      text: `${type === 'buy' ? 'Buy' : 'Sell'} ${displayAmount} RISY`
     };
   };
 

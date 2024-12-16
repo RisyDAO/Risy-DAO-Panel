@@ -97,21 +97,21 @@ export function useTokenTransfer({
       return;
     }
 
-    // HODL limit validation
-    if (state.recipient && !isBurnAddress(state.recipient) && !isDAOAddress(state.recipient, CONTRACTS.DAO) && state.amount) {
-      if (!isNaN(numAmount) && numAmount > 0) {
-        if (numAmount > numRecipientHodl) {
-          dispatch({ type: "SET_ERROR", payload: `Exceeds recipient's HODL limit (max: ${numRecipientHodl.toFixed(2)} RISY)` });
-          return;
-        }
-      }
-    }
-
     // Amount validations
     if (state.amount) {
       if (isNaN(numAmount) || numAmount <= 0) {
         dispatch({ type: "SET_ERROR", payload: "Invalid amount" });
         return;
+      }
+
+      // HODL limit validation
+      if (state.recipient && !isBurnAddress(state.recipient) && !isDAOAddress(state.recipient, CONTRACTS.DAO) && state.amount) {
+        if (!isNaN(numAmount) && numAmount > 0) {
+          if (numAmount > numRecipientHodl) {
+            dispatch({ type: "SET_ERROR", payload: `Exceeds recipient's HODL limit (max: ${numRecipientHodl.toFixed(2)} RISY)` });
+            return;
+          }
+        }
       }
 
       if (numAmount > numSenderBalance) {

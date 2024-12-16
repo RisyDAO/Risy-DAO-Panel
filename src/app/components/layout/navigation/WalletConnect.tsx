@@ -7,12 +7,21 @@ import { RISY_TOKEN_CONFIG } from "../../../config/tokens";
 import { CONTRACTS } from "../../../config/contracts";
 import { supportedChains } from "../../../config/chains";
 import { risyDaoTheme } from "../../../config/theme";
+import { useEffect, useState } from "react";
 
 interface WalletConnectProps {
   isLoading?: boolean;
 }
 
 function WalletConnectContent({ isLoading = false }: WalletConnectProps) {
+  const [userLocale, setUserLocale] = useState<LocaleId>("en" as LocaleId);
+  const [origin, setOrigin] = useState<string>("");
+
+  useEffect(() => {
+    setUserLocale(window?.navigator?.language as LocaleId || "en" as LocaleId);
+    setOrigin(window.location.origin);
+  }, []);
+
   return (
     <LoadingState
       isLoading={isLoading}
@@ -31,7 +40,7 @@ function WalletConnectContent({ isLoading = false }: WalletConnectProps) {
         recommendedWallets={recommendedWallets}
         showAllWallets={true}
         autoConnect={true}
-        locale={window?.navigator?.language as LocaleId}
+        locale={userLocale}
         chains={supportedChains}
         supportedTokens={{
           [supportedChains[0].id]: [
@@ -54,7 +63,7 @@ function WalletConnectContent({ isLoading = false }: WalletConnectProps) {
           name: "Risy DAO Panel",
           description: "Risy DAO Management Panel",
           logoUrl: "./img/logo.png",
-          url: typeof window !== "undefined" ? window.location.origin : "",
+          url: origin,
         }}
       />
     </LoadingState>

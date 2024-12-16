@@ -2,6 +2,7 @@ import { type ReactNode } from "react";
 import { type Account } from "thirdweb/wallets";
 import { type TokenConfig } from "./token";
 import { type PreparedTransaction } from "thirdweb";
+import { type TokenTradeHookResult } from "./trade";
 
 // Wallet Context Types
 export interface WalletContextValue {
@@ -58,6 +59,7 @@ export interface TokenContextValue extends TokenState {
     handleTransfer: () => Promise<void>;
     prepareTransfer: () => Promise<PreparedTransaction>;
   };
+  trade: TokenTradeHookResult;
 }
 
 // Provider Props

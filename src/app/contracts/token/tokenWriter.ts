@@ -13,18 +13,26 @@ export class TokenWriter extends BaseTokenService<typeof import("../../client").
     super(contract);
   }
 
-  async prepare(method: "transfer" | "burn", params: string[]): Promise<PreparedTransaction> {
+  async prepare(method: "transfer" | "burn" | "approve", params: string[]): Promise<PreparedTransaction> {
     if (!this.validateAmount(params[method === "burn" ? 0 : 1])) {
       throw new TransactionError("Invalid amount");
     }
 
     const amount = this.convertToWei(params[method === "burn" ? 0 : 1]);
-    
+
     if (method === "burn") {
       return prepareContractCall({
         contract: this.contract,
         method: "function burn(uint256 value)",
         params: [amount]
+      });
+    }
+
+    if (method === "approve") {
+      return prepareContractCall({
+        contract: this.contract,
+        method: "function approve(address spender, uint256 value)",
+        params: [params[0], amount]
       });
     }
 

@@ -4,6 +4,7 @@ import { createContext, useContext } from "react";
 import { useTokenBalance } from "../hooks/token/useTokenBalance";
 import { useTokenLimits } from "../hooks/token/useTokenLimits";
 import { useTokenTransfer } from "../hooks/token/useTokenTransfer";
+import { useTokenTrade } from "../hooks/token/useTokenTrade";
 import { useRisyToken } from "../hooks/token/useRisyToken";
 import { type TokenContextValue, type ProviderProps } from "../types/context";
 import { useWallet } from "./WalletContext";
@@ -44,6 +45,12 @@ export function TokenProvider({ children }: ProviderProps) {
     isWhitelisted,
   });
 
+  // Set up trade functionality
+  const tradeHook = useTokenTrade({
+    type: 'buy', // Default type, will be overridden by component
+    balance,
+  });
+
   const value: TokenContextValue = {
     // Token metadata
     config,
@@ -82,6 +89,14 @@ export function TokenProvider({ children }: ProviderProps) {
       setAmount: transferHook.setAmount,
       handleTransfer: transferHook.handleTransfer,
       prepareTransfer: transferHook.prepareTransfer,
+    },
+
+    // Trade functionality
+    trade: {
+      state: tradeHook.state,
+      setAmount: tradeHook.setAmount,
+      prepareTrade: tradeHook.prepareTrade,
+      prepareApprove: tradeHook.prepareApprove,
     },
   };
 

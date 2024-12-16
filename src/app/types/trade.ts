@@ -6,7 +6,8 @@ export interface TradeState {
   priceImpact: number;
   error: string | null;
   isSubmitting: boolean;
-  isApproved: boolean;
+  allowance: string;
+  isAllowanceLoading: boolean;
 }
 
 export interface TokenTradeHookResult {

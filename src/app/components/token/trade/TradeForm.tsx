@@ -106,7 +106,6 @@ function TradeFormContent({ type }: { type: 'buy' | 'sell' }) {
       <TradeButtonWrapper
         type={type}
         amount={state.amount}
-        isApproved={state.isApproved}
         payModal={{
           metadata: {
             name: `${type === 'buy' ? 'Buy' : 'Sell'} RISY Token`,

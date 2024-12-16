@@ -81,4 +81,14 @@ export class TokenReader extends BaseTokenService<typeof import("../../client").
       params: []
     });
   }
+
+  async getAllowance(owner: string, spender: string) {
+    const allowance = await readContract({
+      contract: this.contract,
+      method: "function allowance(address owner, address spender) view returns (uint256)",
+      params: [owner, spender]
+    });
+    
+    return this.formatTokenBalance(allowance);
+  }
 } 

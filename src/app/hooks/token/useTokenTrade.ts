@@ -1,5 +1,5 @@
 import { useEffect, useReducer } from "react";
-import { useActiveWallet } from "thirdweb/react";
+import { useActiveWallet, useReadContract } from "thirdweb/react";
 import { CONTRACTS } from "../../constants";
 import { ContractFactory } from "../../contracts/factory";
 import { type TokenTradeHookResult } from "../../types/trade";
@@ -9,6 +9,7 @@ import {
   initialTokenTradeState 
 } from "../../reducers/tokenTradeReducer";
 import { type PreparedTransaction } from "thirdweb";
+import { risyTokenContract } from "../../client";
 
 interface TokenTradeProps {
   type: 'buy' | 'sell';
@@ -22,6 +23,35 @@ export function useTokenTrade({
   const [state, dispatch] = useReducer(tokenTradeReducer, initialTokenTradeState);
   const wallet = useActiveWallet();
   const account = wallet?.getAccount();
+  const walletAddress = account?.address;
+
+  // Check token allowance for router contract
+  const { data: allowance, isLoading: isAllowanceLoading } = useReadContract({
+    contract: risyTokenContract,
+    method: "function allowance(address owner, address spender) view returns (uint256)",
+    params: walletAddress && type === 'sell' ? [walletAddress, CONTRACTS.ROUTER] : ['0x0000000000000000000000000000000000000000', '0x0000000000000000000000000000000000000000'],
+  });
+
+  // Update approval status when allowance changes
+  useEffect(() => {
+    const checkAllowance = async () => {
+      if (!walletAddress || type !== 'sell') {
+        dispatch({ type: "SET_ALLOWANCE", payload: "0" });
+        return;
+      }
+
+      try {
+        const tokenReader = ContractFactory.getTokenReader();
+        const { formattedBalance: formattedAllowance } = await tokenReader.getAllowance(walletAddress, CONTRACTS.ROUTER);
+        dispatch({ type: "SET_ALLOWANCE", payload: formattedAllowance });
+      } catch (error) {
+        console.error("Failed to check allowance:", error);
+        dispatch({ type: "SET_ALLOWANCE", payload: "0" });
+      }
+    };
+
+    checkAllowance();
+  }, [allowance, type, walletAddress]);
 
   // Calculate estimated output and price impact when amount changes
   useEffect(() => {
@@ -64,6 +94,11 @@ export function useTokenTrade({
 
     dispatch({ type: "SET_ERROR", payload: null });
   }, [state.amount, balance, type]);
+
+  // Update allowance loading state
+  useEffect(() => {
+    dispatch({ type: "SET_ALLOWANCE_LOADING", payload: isAllowanceLoading });
+  }, [isAllowanceLoading]);
 
   const prepareTrade = async (): Promise<PreparedTransaction> => {
     if (state.error || !state.amount || !account) {

@@ -6,7 +6,8 @@ export type TokenTradeAction =
   | { type: "SET_PRICE_IMPACT"; payload: number }
   | { type: "SET_ERROR"; payload: string | null }
   | { type: "SET_SUBMITTING"; payload: boolean }
-  | { type: "SET_APPROVED"; payload: boolean }
+  | { type: "SET_ALLOWANCE"; payload: string }
+  | { type: "SET_ALLOWANCE_LOADING"; payload: boolean }
   | { type: "RESET_STATE" };
 
 export const initialTokenTradeState: TradeState = {
@@ -15,7 +16,8 @@ export const initialTokenTradeState: TradeState = {
   priceImpact: 0,
   error: null,
   isSubmitting: false,
-  isApproved: false
+  allowance: "0",
+  isAllowanceLoading: false
 };
 
 export function tokenTradeReducer(
@@ -33,8 +35,10 @@ export function tokenTradeReducer(
       return { ...state, error: action.payload };
     case "SET_SUBMITTING":
       return { ...state, isSubmitting: action.payload };
-    case "SET_APPROVED":
-      return { ...state, isApproved: action.payload };
+    case "SET_ALLOWANCE":
+      return { ...state, allowance: action.payload };
+    case "SET_ALLOWANCE_LOADING":
+      return { ...state, isAllowanceLoading: action.payload };
     case "RESET_STATE":
       return initialTokenTradeState;
     default:

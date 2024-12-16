@@ -6,7 +6,6 @@ import { TransactionButtonWrapper } from "../../shared/TransactionButtonWrapper"
 interface TradeButtonProps {
   type: 'buy' | 'sell';
   amount: string;
-  isApproved: boolean;
   className?: string;
   unstyled?: boolean;
   disabled?: boolean;
@@ -24,7 +23,6 @@ interface TradeButtonProps {
 function TradeButtonContent({
   type,
   amount,
-  isApproved,
   className,
   unstyled = true,
   disabled = false,
@@ -38,6 +36,11 @@ function TradeButtonContent({
 
   // Check if form is valid
   const isFormValid = amount && !state.error && !state.isSubmitting && walletAddress;
+
+  // Check if amount is approved
+  const isApproved = type === 'buy' || (
+    Number(state.allowance) >= Number(amount)
+  );
 
   const getButtonContent = () => {
     if (!amount) {
@@ -66,17 +69,32 @@ function TradeButtonContent({
       };
     }
 
-    if (type === 'sell' && !isApproved) {
-      return {
-        icon: (
-          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} 
-              d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" 
-            />
-          </svg>
-        ),
-        text: "Approve RISY"
-      };
+    if (type === 'sell') {
+      if (state.isAllowanceLoading) {
+        return {
+          icon: (
+            <svg className="w-5 h-5 animate-spin" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} 
+                d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" 
+              />
+            </svg>
+          ),
+          text: "Checking Approval..."
+        };
+      }
+
+      if (!isApproved) {
+        return {
+          icon: (
+            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} 
+                d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" 
+              />
+            </svg>
+          ),
+          text: "Approve RISY"
+        };
+      }
     }
 
     return {
@@ -100,7 +118,7 @@ function TradeButtonContent({
       onTransactionConfirmed={onTransactionConfirmed}
       onError={onError}
       unstyled={unstyled}
-      disabled={disabled || !isFormValid}
+      disabled={disabled || !isFormValid || state.isAllowanceLoading}
       payModal={payModal}
       className={className}
     >

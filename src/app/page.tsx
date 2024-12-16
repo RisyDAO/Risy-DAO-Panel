@@ -3,6 +3,7 @@
 import { ErrorBoundary } from "./components/shared/ErrorBoundary";
 import { Layout } from "./components/layout/Layout";
 import { TokenBalance } from "./components/token/TokenBalance";
+import { TradePanel } from "./components/token/TradePanel";
 import { TransferPanel } from "./components/token/TransferPanel";
 import { StatusBadge } from "./components/shared/StatusBadge";
 import { LoadingState } from "./components/shared/loading/LoadingState";
@@ -69,6 +70,7 @@ function DashboardContent() {
     >
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         <TokenBalance />
+        <TradePanel />
         <TransferPanel />
       </div>
     </LoadingState>

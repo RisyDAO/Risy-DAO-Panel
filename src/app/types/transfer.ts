@@ -26,17 +26,6 @@ export interface TransferInputProps {
   walletAddress?: string;
 }
 
-export interface TransferButtonProps {
-  recipient: string;
-  amount: string;
-  error: string | null;
-  isSubmitting: boolean;
-  isBurnAddress: boolean;
-  isValidAddress: boolean;
-  walletAddress?: string;
-  className?: string;
-}
-
 export interface TransferNoticeProps {
   isBurnAddress: boolean;
   isDAOAddress: boolean;

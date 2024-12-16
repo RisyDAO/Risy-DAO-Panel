@@ -1,5 +1,6 @@
 import { useEffect, useReducer } from "react";
 import { useActiveWallet } from "thirdweb/react";
+import { CONTRACTS } from "../../constants";
 import { ContractFactory } from "../../contracts/factory";
 import { type TokenTradeHookResult } from "../../types/trade";
 import { handleError, TransactionError, isUserRejectedError } from "../../utils/errorUtils";
@@ -96,7 +97,7 @@ export function useTokenTrade({
 
     try {
       const tokenWriter = ContractFactory.getTokenWriter(account);
-      return tokenWriter.prepare("approve", [state.amount]);
+      return tokenWriter.prepare("approve", [CONTRACTS.ROUTER, state.amount]);
     } catch (err) {
       if (isUserRejectedError(err)) {
         dispatch({ type: "SET_ERROR", payload: "Transaction was rejected by user" });

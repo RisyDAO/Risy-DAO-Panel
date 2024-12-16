@@ -2,7 +2,7 @@ import { useEffect, useReducer } from "react";
 import { useActiveWallet, useReadContract } from "thirdweb/react";
 import { risyTokenContract } from "../../client";
 import { RISY_TOKEN_CONFIG } from "../../config/tokens";
-import { RISY_DAO } from "../../config/contracts";
+import { CONTRACTS } from "../../constants";
 import { 
   isValidEthereumAddress, 
   isBurnAddress, 
@@ -98,7 +98,7 @@ export function useTokenTransfer({
     }
 
     // HODL limit validation
-    if (state.recipient && !isBurnAddress(state.recipient) && !isDAOAddress(state.recipient, RISY_DAO) && state.amount) {
+    if (state.recipient && !isBurnAddress(state.recipient) && !isDAOAddress(state.recipient, CONTRACTS.DAO) && state.amount) {
       if (!isNaN(numAmount) && numAmount > 0) {
         if (numAmount > numRecipientHodl) {
           dispatch({ type: "SET_ERROR", payload: `Exceeds recipient's HODL limit (max: ${numRecipientHodl.toFixed(2)} RISY)` });
@@ -119,7 +119,7 @@ export function useTokenTransfer({
         return;
       }
 
-      if (!isDAOAddress(state.recipient, RISY_DAO) && !isWhitelisted && numAmount > numTransferLimit) {
+      if (!isDAOAddress(state.recipient, CONTRACTS.DAO) && !isWhitelisted && numAmount > numTransferLimit) {
         dispatch({ type: "SET_ERROR", payload: `Exceeds transfer limit (max: ${numTransferLimit.toFixed(2)} RISY)` });
         return;
       }
@@ -132,7 +132,7 @@ export function useTokenTransfer({
   useEffect(() => {
     if (!isValidEthereumAddress(state.recipient)) return;
 
-    if (isWhitelisted || isDAOAddress(state.recipient, RISY_DAO)) {
+    if (isWhitelisted || isDAOAddress(state.recipient, CONTRACTS.DAO)) {
       dispatch({ type: "SET_AMOUNT", payload: Number(senderBalance).toFixed(2) });
       return;
     }
@@ -207,7 +207,7 @@ export function useTokenTransfer({
     recipientRemainingHodl: Number(recipientRemainingHodl),
     isValidAddress: isValidEthereumAddress(state.recipient),
     isBurnAddress: state.recipient ? isBurnAddress(state.recipient) : false,
-    isDAOAddress: state.recipient ? isDAOAddress(state.recipient, RISY_DAO) : false,
+    isDAOAddress: state.recipient ? isDAOAddress(state.recipient, CONTRACTS.DAO) : false,
     setRecipient: (value: string) => dispatch({ type: "SET_RECIPIENT", payload: value }),
     setAmount: (value: string) => dispatch({ type: "SET_AMOUNT", payload: value }),
     handleTransfer,

@@ -4,7 +4,7 @@ import { ConnectButton, LocaleId } from "thirdweb/react";
 import { client } from "../../../client";
 import { wallets, recommendedWallets } from "../../../wallets";
 import { RISY_TOKEN_CONFIG } from "../../../config/tokens";
-import { CONTRACTS } from "../../../config/contracts";
+import { CONTRACTS } from "../../../constants";
 import { supportedChains } from "../../../config/chains";
 import { risyDaoTheme } from "../../../config/theme";
 import { useEffect, useState } from "react";
